@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <script src="/vue/vue.js" type="text/javascript" ></script>
+    <script src="/layer/layer.js" type="text/javascript"></script>
+    <script src="/layui/layui.js" type="text/javascript"></script>
+    <title></title>
+    <style>
+      .layui-input,
+      .layui-select,
+      .layui-textarea {
+      height: 30px;
+      line-height: 1.3;
+      line-height: 30px;
+      }
+
+      .layui-form-pane .layui-form-label {
+      width: 80px;
+      padding: 4px 0px 0px 0px;
+      height: 30px;
+      line-height: 20px;
+      font-weight: 300;
+      text-align: center;
+      margin-left: 0px;
+      }
+
+      .layui-field-title {
+      margin-top: 0;
+      margin-bottom: 0px;
+      border-width: 1px 0 0;
+      border-color: lightgray;
+      }
+
+      .layui-field-title legend{
+      margin-top: 0;
+      margin-bottom: 5px;
+      border-width: 1px 0 0;
+      border-color: lightgray;
+      }
+
+      .layui-table td {
+      color: black;
+      text-align: center;
+      border: solid lightgray;
+      border-width: 1px 1px 1px 1px;
+      }
+
+      .layui-table th {
+      text-align: center;
+      border: solid lightgray;
+      border-width: 1px 1px 1px 1px;
+      }
+      
+    </style>
+  </head>
+
+  <body>
+    <form class="layui-form layui-form-pane" action="">
+      <div id="remote-control-page" class="layui-container">
+        <div class="layui-row">
+          <div class="layui-tab layui-tab-brief" lay-filter="remote-control">
+            <ul class="layui-tab-title">
+              <li class="layui-this">主机控制</li>
+              <li>输出控制</li>
+            </ul>
+            <div class="layui-tab-content" style="height: 100px;">
+              <div class="layui-tab-item layui-show">
+                <div class="layui-row">
+                  <fieldset class="layui-field-title">
+                    <legend>主机操作</legend>
+                    <div class="layui-row">
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">操作密码：</label>
+                        <div class="layui-input-inline" >
+                          <input type="password" name="password" autocomplete="off" class="layui-input" >
+                        </div>
+                        <img id="option-img" src="/images/visible.png" style=" width: 30px; height: 20px;" />
+                        <div id="display-save-btn" style="display:none">
+                          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="password-local-save">保存</button>
+                          <span style="font-size: 12px">(注意:保存密码后下次不需要知道密码也能实现主机操作)</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-row">
+                      <div class="layui-col-xs6">
+                        <div class="layui-row">
+                          <div class="layui-form-item">
+                            <label class="layui-form-label">子系统号：</label>
+                            <div class="layui-input-inline" >
+                              <input type="text" name="area" lay-verify="number" class="layui-input" value="1" autocomplete="off">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="layui-row" style="text-align: center;">
+                          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="panel-open">&nbsp;&nbsp;&nbsp;&nbsp;撤防&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="panel-away">外出布防</button>
+                          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="panel-stay">留守布防</button>
+                        </div>
+                      </div>
+                      <div class="layui-col-xs6">
+                        <div class="layui-row">
+                          <div class="layui-form-item">
+                            <label class="layui-form-label">防区号：</label>
+                            <div class="layui-input-inline">
+                              <input type="text" name="zone" lay-verify="number" class="layui-input" autocomplete="off">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="layui-row" style="text-align: center;">
+                          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="zone-bypass">防区旁路</button>
+                          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="zone-unbypass">解除旁路</button>
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+                <div class="layui-row" style="margin-top: 20px">
+                  <fieldset class="layui-field-title">
+                    <legend>修改主机密码</legend>
+                    <div class="layui-row">
+                      <div class="layui-form-item">
+                        <div class="layui-inline" style="width: 20%">
+                          <label class="layui-form-label">用户号：</label>
+                          <div class="layui-input-inline" style="width: 30%">
+                            <input type="text" name="user" class="layui-input" value="">
+                          </div>
+                        </div>
+                        <div class="layui-inline" style="margin-left: 0px; width: 20%">
+                          <label class="layui-form-label">权限代码：</label>
+                          <div class="layui-input-inline" style="width: 30%">
+                            <input type="text" name="auth" class="layui-input">
+                          </div>
+                        </div>
+                        <div class="layui-inline" style="width: 40%">
+                          <label class="layui-form-label">新密码：</label>
+                          <div class="layui-input-inline" style="width: 50%">
+                            <input type="tel" name="new-password" autocomplete="off" class="layui-input">
+                          </div>
+                        </div>
+                        <div class="layui-inline" style="width: 10%">
+                          <div class="layui-input-inline">
+                            <button class="layui-btn layui-btn-sm" lay-submit lay-filter="password-modify-to-panel">设置到主机</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+              <div class="layui-tab-item">
+                <div class="layui-row">
+                  <fieldset class="layui-field-title" style="margin-top: 5px;">
+                    <legend>可编程输出</legend>
+                    <div class="layui-input-inline">
+                      <select id="po" name="po" lay-verify="">
+                      </select>
+                    </div>
+                    <button class="layui-btn layui-btn-sm" lay-submit lay-filter="po-open">打开</button>
+                    <button class="layui-btn layui-btn-sm" lay-submit lay-filter="po-close">关闭</button>
+                    <span style="margin-left: 10px">时长(秒)</span>
+                    <div class="layui-input-inline" style="width: 100px;">
+                      <input type="text" name="delay-time" class="layui-input" value="0">
+                    </div>           
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="layui-row" style="margin-top: 150px">
+          <hr class="layui-bg-green">
+        </div>
+        <div class="layui-row">
+          <div class="layui-tab layui-tab-brief" lay-filter="remote-status">
+            <ul class="layui-tab-title">
+              <li id="panel-status" class="layui-this">主机状态</li>
+              <li>防区状态</li>
+              <li>设备属性</li>
+              <button class="layui-btn layui-btn-sm" id="refresh" style="float: right; margin-right: 35px">&nbsp;&nbsp;刷新状态&nbsp;</button>
+            </ul>
+            <div class="layui-tab-content" style="height: 100px;">
+              <div class="layui-tab-item layui-show">
+                <table lay-even class="layui-table" lay-size="sm" style="width: 55%">
+                  <colgroup>
+                    <col width="30%">
+                    <col width="30%">
+                    <col width="30%">
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <td>主机</td>
+                      <td v-if="areas['01'].stat === 'open'" style="background-color: yellow">撤防</td>
+                      <td v-else-if="areas['01'].stat === 'alarm'" style="background-color: red">报警</td>
+                      <td v-else-if="areas['01'].stat === 'unready'" style="background-color: yellow">未准备</td>
+                      <td v-else-if="areas['01'].stat === 'away' || areas['01'].stat === 'awaydelay'" style="background-color: Lime">外出布防</td>
+                      <td v-else-if="areas['01'].stat === 'stay' || areas['01'].stat === 'staydelay'" style="background-color: Lime">留守布防</td>
+                      <td v-else style="background-color: lightgray"></td>
+                    </tr>
+                    <tr>
+                      <td>交流电</td>
+                      <td v-if="flags['ac-fail'] === 'trb'" style="background-color: yellow">故障</td>
+                      <td v-else-if="flags['ac-fail'] === 'ok'" style="background-color: Lime">正常</td>
+                      <td v-else style="background-color: lightgray"></td>
+                      <td v-if="flags['ac-vol'] != null">{{flags['ac-vol']}}</td>
+                    </tr>
+                    <tr>
+                      <td>电池</td>
+                      <td v-if="flags['low-battery'] === 'trb'" style="background-color: yellow">故障</td>
+                      <td v-else-if="flags['low-battery'] === 'ok'" style="background-color: Lime">正常</td>
+                      <td v-else style="background-color: lightGray"></td>
+                      <td v-if="flags['bat-vol'] != null">{{flags['bat-vol']}}</td>
+                    </tr>
+                    <tr>
+                      <td>电话线</td>
+                      <td v-if="flags['line-fail'] === 'trb'" style="background-color: yellow">故障</td>
+                      <td v-else-if="flags['line-fail'] === 'ok'" style="background-color: Lime">正常</td>
+                      <td v-else style="background-color: lightgray"></td>
+                    </tr>
+                    <tr>
+                      <td v-if="flags['pwr-vol'] != null">模块电源电压</td>
+                      <td v-if="flags['pwr-vol'] != null">{{flags['pwr-vol']}}</td>
+                    </tr>
+                    <tr>
+                      <td v-if="flags['gprs'] != null">移动网络信号强度</td>
+                      <td v-if="flags['gprs'] != null">{{flags['gprs']}}</td>
+                    </tr>
+                    <tr>
+                      <td v-if="flags['netif'] !== 'n/a'">当前连接类型</td>
+                      <td v-if="flags['netif'] !== 'n/a'">{{flags['netif']}}</td>
+                    </tr>
+                    <tr v-for="(value, key, index) in flags.po">
+                      <td>可编程输出{{key}}</td>
+                      <td v-if="value === '1'">打开</td>
+                      <td v-else>关闭</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="layui-tab-item">
+                <table lay-even class="layui-table" lay-size="sm" style="width: 40%">
+                  <colgroup>
+                    <col width="20%">
+                    <col width="30%">
+                  </colgroup>
+                  <thead>
+                    <th>防区号</th>
+                    <th>状态</th>
+                  </thead>
+                  <tbody>
+                    <!-- <alarm|normal|bypass|unready> -->
+                    <tr v-for="(stat, key, index) in zones">
+                      <td>{{key}}</td>
+                      <td v-if="stat === 'n'" style="color: Green">正常</td>
+                      <td v-else-if="stat === 'a'" style="background-color: red">报警</td>
+                      <td v-else-if="stat === 'u'" style="background-color: yellow">未准备</td>
+                      <td v-else-if="stat === 'b'" style="background-color: Darkorange">旁路</td>
+                      <td v-else style="background-color: lightGray"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="layui-tab-item">
+                <table lay-even class="layui-table" lay-size="sm" style="width: 40%">
+                  <colgroup>
+                    <col width="30%">
+                    <col width="40%">
+                    <col>
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <td>设备TID</td>
+                      <td>{{profile.tid}}</td>
+                    </tr>
+                    <tr>
+                      <td>设备型号</td>
+                      <td>{{profile.model}}</td>
+                    </tr>
+                    <tr>
+                      <td>固件版本</td>
+                      <td>{{profile.ver}}</td>
+                    </tr>
+                    <tr>
+                      <td v-if="flags['panelType'] !== null">主机类型</td>
+                      <td v-if="flags['panelType'] !== null">{{flags['panelType']}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <script type="text/javascript">
+      layui.use(['jquery', 'form', 'element'], function() {
+      var $ = layui.jquery,
+      form = layui.form,
+      element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+      $("body").on("click", "#option-img", function () {
+      var pwdObj = $("input[name=password]");
+      var imgObj = $("#option-img");
+      if (pwdObj.attr("type") == "password") {
+      pwdObj.attr("type", "text");
+      imgObj.attr("src", "/images/invisible.png");
+      }else {
+      pwdObj.attr("type", "password");
+      imgObj.attr("src", "/images/visible.png");
+      }
+      });
+      
+      var app = new Vue({
+      el: '#remote-control-page',
+      data: {
+      pass: "",
+      profile: {
+      tid: "",
+      model: "",
+      ver: ""
+      },
+      areas: {
+      '01': {
+      stat: ""
+      }
+      },
+      flags: {
+      "ac-fail"     : null,
+      "low-battery" : null,
+      "line-fail"   : null,
+      "panelType"   : null,
+      "netif"       : null,
+      "bat-vol"     : null,
+      "ac-vol"      : null,
+      "pwr-vol"     : null
+      },
+      zones: {},
+      po: {}
+      }
+      });
+
+      var title = $(".layui-layer-title", window.parent.document).html();
+      title = title.split(",");
+      var acct  = title[0].split(":");
+      var tid   = title[1].split(":");
+      var model = title[2].split(":");
+      acct  = acct[1];
+      tid   = tid[1];
+      model = model[1];
+
+      function remote_control(method, params) {
+      var url = "/api/remote-control?&method=" + method + "&params=" + params;
+      $.getJSON(url)
+      .done(function(result) {
+      if (result.code === "0") {
+      layer.msg(result.msg, { title: "提示", skin: 'layui-layer-molv', icon: 1, time: 1000 });
+      } else {
+      layer.msg(result.msg, { title: "提示", skin: 'layui-layer-molv', icon: 2, time: 1000 });
+      }
+      })
+      .fail(function(textStatus, jqXHR, error) {
+      layer.msg("系统错误,请稍后再试！", { title: "提示", skin: 'layui-layer-molv', icon: 2, time: 1000 });
+      });
+      }
+
+      form.on('submit(password-local-save)', function (data) {
+      if ($("#display-save-btn").css("display") === "none") {
+      return false;
+      }
+      var pass = data.field['password']; //为空字符串时清空密码
+      var params = {
+      tid : tid,
+      acct: acct,
+      pass: pass
+      };
+      remote_control("password-local-save", JSON.stringify(params));
+      return false;
+      });
+
+      form.on('submit(password-modify-to-panel)', function (data) {
+      var pass     = data.field['password'];
+      var pass_new = data.field['new-password'];
+      var user     = data.field['user'];
+      var auth     = data.field['auth'];
+
+      if (pass === "") {
+      layer.msg("请输入原密码", { icon: 2, time: 2000 });
+      return false;
+      }
+      if (user === "") {
+      layer.msg("请输入用户号", { icon: 2, time: 2000 });
+      return false;
+      }
+      if (auth === "") {
+      layer.msg("请输入权限代码", { icon: 2, time: 2000 });
+      return false;
+      }
+      if (pass_new === "") {
+      layer.msg("请输入新密码", { icon: 2, time: 2000 });
+      return false;
+      }
+      var params = {
+      tid        : tid,
+      acct       : acct,
+      "pass"     : pass,
+      "pass_new" : pass_new,
+      "user"     : user,
+      "auth"     : auth
+      };
+      remote_control("password-modify-to-panel", JSON.stringify(params));
+      return false;
+      });
+
+      function panel_control(method, data) {
+      var pass = data.field['password'];
+      var area = data.field['area'];
+      if (pass === "") {
+      layer.msg("请输入有效密码", { icon: 2, time: 2000 });
+      return false;
+      }
+      if (area === "") {
+      //layer.msg("请输入有效分区号", { icon: 2, time: 2000 });
+      //return false;
+      area = "1";
+      }
+      var params = {
+      tid  : tid,
+      acct : acct,
+      pass : pass,
+      area : area
+      };
+      remote_control(method, JSON.stringify(params));
+      }
+
+      form.on('submit(panel-open)', function (data) {
+      panel_control("panel-open", data);
+      return false;
+      });
+
+      form.on('submit(panel-away)', function (data) {
+      panel_control("panel-away", data);
+      return false;
+      });
+
+      form.on('submit(panel-stay)', function (data) {
+      panel_control("panel-stay", data);
+      return false;
+      });
+
+      function zone_control(method, data) {
+      var pass = data.field['password'];
+      var zone = data.field['zone'];
+      if (pass === "") {
+      layer.msg("请输入有效密码", { icon: 2, time: 2000 });
+      return false;
+      }
+      if (zone === "") {
+      layer.msg("请输入有效防区号", { icon: 2, time: 2000 });
+      return false;
+      }
+      var params = {
+      tid  : tid,
+      acct : acct,
+      pass : pass,
+      zone : zone
+      };
+      remote_control(method, JSON.stringify(params));
+      }
+
+      form.on('submit(zone-bypass)', function (data) {
+      zone_control("zone-bypass", data);
+      return false;
+      });
+
+      form.on('submit(zone-unbypass)', function (data) {
+      zone_control("zone-unbypass", data);
+      return false;
+      });
+
+      function po_control(method, data) {
+      var pass       = data.field['password'];
+      var po         = data.field['po'];
+      var delay_time = data.field['delay-time'];
+
+      if (po === "") {
+      layer.msg("请选择可编程输出编号", { icon: 2, time: 2000 });
+      return;
+      }
+      if (delay_time === "") {
+      layer.msg("请选择输出控制时间，0表明一直有效。", { icon: 2, time: 2000 });
+      return;
+      }
+      var params = {
+      tid  : tid,
+      acct : acct,
+      pass : pass,
+      po   : po,
+      delay: delay_time
+      }
+      remote_control(method, JSON.stringify(params));
+      }
+
+      form.on('submit(po-open)', function (data) {
+      po_control("po-open", data);
+      return false;
+      });
+
+      form.on('submit(po-close)', function (data) {
+      po_control("po-close", data);
+      return false;
+      });
+
+      function render_po_option(po) {
+      $("#po").empty();
+      for (var key in po) {
+      var stat = po[key]==="0"?"关闭":"打开";
+      var option = $("<option value='" + key + "'>可编程输出" + key + "——" + stat + "</option>");
+      $("#po").append(option);
+      }
+      
+      form.render();
+      }
+
+      var first_render = true;
+      
+      function get_session_runtime(flag) {
+      var params = {
+      acct    : acct,
+      tid     : tid,
+      model   : model,
+      refresh : flag
+      };
+      params = JSON.stringify(params);
+      var url = "/api/get-session-runtime?params=" + params;
+      $.getJSON(url)
+      .done(function(result) {
+      if (result.code === "0") {
+      app.profile = result.data.profile;
+      app.flags   = result.data.flags;
+      app.areas   = result.data.areas;
+      app.zones   = result.data.zones;
+
+      if (flag) {
+      render_po_option(result.data.flags.po);
+      }
+      
+      if (result.data.pass_save_enabled) {
+      $("#display-save-btn").css("display", "inline");
+      } else {
+      $("#display-save-btn").css("display", "none");
+      }
+
+      if (first_render) {
+      $("input[name=password]").val(result.data.pass);
+      first_render = false;
+      }
+      } else {
+      layer.msg(result.msg, { title: "提示", skin: 'layui-layer-molv', icon: 2, time: 1000 });
+      }
+      })
+      .fail(function(textStatus, jqXHR, error) {
+      layer.msg("系统错误,请稍后再试！", { title: "提示", skin: 'layui-layer-molv', icon: 2, time: 1000 });
+      });
+      }
+
+      var first_get = true;
+      
+      function update_data() {
+      if (first_get) {
+      get_session_runtime(true);
+      first_get = false;
+      } else {
+      get_session_runtime(false);
+      }
+      setTimeout(update_data, 5 * 1000);
+      };
+      
+      update_data();
+      
+      $('#refresh').on('click', function () {
+      get_session_runtime(true);  //手动刷新时才get,status,all
+      return false;
+      });
+      });
+    </script>
+  </body>
+
+</html>

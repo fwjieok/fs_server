@@ -1,0 +1,17 @@
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle
+}
+
+body .test-skine .layui-layer-title {
+    background:#7C95A5,
+    color:#FFFFFF;
+    border: display;
+}
+
+body .remote-control-layer-skin .layui-layer-title {
+    background:#7C95A5;
+    color:#FFFFFF;
+    border: display;
+}
