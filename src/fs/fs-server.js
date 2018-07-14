@@ -43,9 +43,21 @@ Fs_server.prototype.start = function () {
 	console.log(req.headers);
 
 	console.log("------------- device push realstream -----------");
-	
+
+	// req.socket.on('data', function (chunk) {
+	//     console.log("--------: ", chunk.length);
+	// });
+
+	// req.socket.on('close', function () {
+	//     console.log("------------- push close ----------------");
+	// });
+
+	// req.socket.on('end', function () {
+	//     console.log("------------- push end ----------------");
+	// });
+
 	req.on('data', function (chunk) {
-	    //console.log("--------: ", chunk.length);
+	    console.log("--------: ", chunk.length);
 	});
 
 	req.on('end', function () {
