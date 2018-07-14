@@ -55,6 +55,7 @@ function Write_session(session, req, res) {
     this.req.on("aborted", this.on_write_close.bind(this.session));
 
     this.req.on("end", function () {
+        console.log("--- push realstream end -----");
         this.res.end();
         this.emit('close');
     }.bind(this));

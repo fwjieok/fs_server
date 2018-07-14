@@ -27,7 +27,7 @@ Fs_server.prototype.start = function () {
     });
 
     this.web.all("/", function (req, res, next) {
-	res.sendFile(__dirname + "/test/index.html");
+	  res.sendFile(__dirname + "/test/upload.html");
     });
 
     this.web.all("/open", function (req, res, next) {
@@ -38,7 +38,7 @@ Fs_server.prototype.start = function () {
 		       "channels": [{"chid": "ch-v1", "streamid": "wUnaQfBXQ+2jVwhHBnhJkQ"}],
 		       "taxid":"KUW9gi5vQAmNBYQX-5AWog"};
 	
-	res.end(JSON.stringify(stream));
+	    res.end(JSON.stringify(stream));
     });
 
     this.web.listen(7001, function () {

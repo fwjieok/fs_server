@@ -9,7 +9,7 @@ var mkdirp = require('mkdirp');
 var request = require('request');
 var fs = require('fs');
 var FSC = process.env.FSC;
-FSC = "http://47.106.171.52:7000";
+FSC = "http://127.0.0.1:7000";
 
 var fs_root = process.env.HOME + "/.fs";
 
@@ -118,11 +118,8 @@ Uploader.prototype.on_file = function (name, file) {
                 file.exist    = true;
                 file.finished = true;
                 file.error    = "file already exists";
-                console.error("-------------- file exist -------------");
                 return this.uploader.done();
             }
-
-            console.error("-------------- request fsc/new success -------------");
 
             var dest_dir  = path.join(fs_root, "/root", file.hash.substr(-3, 3), file.hash.substr(-6, 3));
             mkdirp.sync(dest_dir);
@@ -192,7 +189,8 @@ Uploader.prototype.done = function (err) {
     }
 
     console.log("--------------- done -----------------");
-    console.log(JSON.stringify(fids, null, 4));
+    //console.log(JSON.stringify(fids, null, 4));
+    console.log(fids.length);
     
     this.res.json(fids);
 

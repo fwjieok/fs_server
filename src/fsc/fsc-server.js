@@ -29,7 +29,7 @@ Fsc_server.prototype.start_web_api = function () {
     });
 
     this.web.all("/", function (req, res, next) {
-	     res.sendFile(__dirname + "/index.html");
+	     res.sendFile(__dirname + "/test/upload.html");
     });
 
     this.web.all("/file/:method", function (req, res, next) {
