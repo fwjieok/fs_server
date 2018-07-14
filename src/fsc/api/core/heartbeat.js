@@ -2,16 +2,22 @@
 /*jslint vars:true*/
 
 module.exports = function (req, res) {
-    var fid = req.query.fid;
-    if (!fid) {
-        res.status(400).end();
-        return;
+    var tid = req.headers.tid;
+    if (!tid) {        
+        return res.status(403).end();
     }
-    var tid  = req.headers.tid;
-    // if (!tid) {
-    //     res.status(403).end();
-    //     return;
-    // }
+
+    var info = req.query.info;
+    try {
+        info = JSON.parse(info);
+    } catch (e) {
+        console.log(e);
+        return res.status(400).end();
+    }
+    
+    return res.end();
+
+    //判断该扩展设备是否可用
 
     //var sql = "select * from fid join storage on fid.storage = storage.tid where fid = $1";
     var sql = "select hash, type, fname, storage, s.protocol, s.hostname, s.port from fid ";
