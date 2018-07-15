@@ -110,6 +110,12 @@ SELECT chid, streamid FROM stream WHERE taxid = 'efvBYmLVQUiVv4cULmwzsA' AND chi
 //根据tid查询所有streamid
 SELECT chid, streamid FROM stream WHERE taxid = 'efvBYmLVQUiVv4cULmwzsA';
 
+//更新某个通道的信息
+INSERT INTO stream (streamid, taxid, chid, name, type, format, t_created, t_modified) 
+VALUES ('1333', 'efvBYmLVQUiVv4cULmwzsA', '3', '', 'picture', 'jpeg', now(), now()) 
+on conflict(chid) 
+do update set name=$1, type=$2, format=$3, t_modified=now();
+
 */
 Db.prototype.get_streamid = function (taxid, callback) {
     var infos = {
@@ -127,7 +133,7 @@ Db.prototype.get_streamid = function (taxid, callback) {
         }
 
         //遍历请求参数channels，如果chid在上面有，就忽略？还是更新？；如果没有就insert
-        
+
 
         if (callback) { callback(infos); }
 

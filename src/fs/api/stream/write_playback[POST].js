@@ -1,6 +1,7 @@
 'use strict';
 /*jslint vars : true*/
 
+var fs         = require('fs');
 var formidable = require('formidable');
 var uuid       = require('small-uuid');
 var crypto     = require('crypto');
@@ -8,14 +9,10 @@ var util       = require('util');
 var path       = require('path');
 var mkdirp     = require('mkdirp');
 var request    = require('request');
-var fs         = require('fs');
 var FSC        = process.env.FSC;
+FSC            = "http://127.0.0.1:7000";
 
-FSC = "http://127.0.0.1:7000";
-
-var fs_root = process.env.HOME + "/.fs";
-
-var crypto_md5 = crypto.createHash('md5');
+var fs_root    = process.env.HOME + "/.fs";
 
 function Uploader(req, res) {
     this.req   = req;
@@ -84,44 +81,21 @@ Uploader.prototype.on_file = function (name, file) {
     file.uploader = this;
     this.files.push(file);      //多文件上传
 
-    if (file.size === 0) {
-        fs.unlink(file.path);
-        file.finished = true;
-        file.error    = "file size is 0";        
-        return this.done();
-    }
-    
     this.request_fsc_new(file, function (error, res, result) {
         if (error) {
             fs.unlink(this.path);  //最后统一清理
             file.finished = true;
-            file.error    = error;
-            if (typeof error !== "string") {
-                file.error   = JSON.stringify(error);
-            }            
             return this.uploader.done();
         }
 
         if (res.statusCode !== 200) {
             fs.unlink(this.path);
             file.finished = true;          
-            var error = {
-                code: res.statusCode,
-                result: result
-            }
-            file.error = JSON.stringify(error);
             return this.uploader.done();
         }
 
         if (res.statusCode === 200) {
             result = JSON.parse(result);
-            if (result.exists) {
-                fs.unlink(this.path);
-                file.exist    = true;
-                file.finished = true;
-                file.error    = "file already exists";
-                return this.uploader.done();
-            }
 
             var dest_dir  = path.join(fs_root, "/root", file.hash.substr(-3, 3), file.hash.substr(-6, 3));
             mkdirp.sync(dest_dir);
@@ -130,10 +104,6 @@ Uploader.prototype.on_file = function (name, file) {
             fs.rename(this.path, dest_path, function (error) {
                 if (error) {  
                     fs.unlink(this.path);                      
-                    if (typeof error !== "string") {
-                        file.error   = JSON.stringify(error);
-                    }  
-                    this.error = error;        
                 }
                 this.finished = true;
                 this.uploader.done();
@@ -160,8 +130,8 @@ Uploader.prototype.done = function (err) {
         return;
     }
 
+    var count = 0;
     var all_finished = true;
-    var fids         = [];
 
     for (var i = 0; i < this.files.length; i++) {
         var file = this.files[i];
@@ -170,20 +140,7 @@ Uploader.prototype.done = function (err) {
             break;
         }
 
-        if (file.error) {           //上传出错，则记录出错原因
-            fids.push({
-                name:  file.name,
-                exist: file.exist,
-                error: file.error
-            });
-        } else {
-            fids.push({
-                fid:  file.fid,
-                name: file.name,
-                size: file.size,
-                hash: file.hash
-            });
-        }        
+        count ++;
     }
 
     if (!all_finished) {            //有些文件的异步操作未完成
@@ -191,10 +148,9 @@ Uploader.prototype.done = function (err) {
     }
 
     console.log("--------------- done -----------------");
-    //console.log(JSON.stringify(fids, null, 4));
-    console.log(fids.length);
+    console.log(count);
     
-    this.res.json(fids);
+    this.res.end();
 
     this.res_finished = true;
 };
