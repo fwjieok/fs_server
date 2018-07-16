@@ -1,16 +1,16 @@
 'use strict';
 /*jslint vars:true */
 
+var env             = process.env;
 var util            = require("util");
 var exec            = require('child_process').exec;
 var path            = require("path");
 var fs              = require("fs");
 var os              = require("os");
-var env             = process.env;
-var Network_monitor = require("./utils/network_monitor.js");
-var uptime          = require("./utils/uptime.js");
-var global          = require("./utils/global.js");
-var Db              = require("./db-pg.js");
+var Network_monitor = require("./network_monitor.js");
+var uptime          = require("./uptime.js");
+var global          = require("../common/global.js");
+var Db              = require("../common/db-pg.js");
 
 // var SYSTEM_LOG      = env.JVAR   + "/system.log";
 var INTERNET_READY  = env.JFLAGS + "/sys-internet-ready";
@@ -107,4 +107,3 @@ Server.prototype.log = function () {
 };
 
 module.exports = Server;
-

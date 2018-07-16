@@ -37,10 +37,6 @@ function Read_session(sessionId, req, res) {
 
 util.inherits(Read_session, Session);
 
-Read_session.prototype.write = function (chunk) {
-    return this.res.write(chunk);
-};
-
 function Write_session(session, req, res) {
     this.session  = session;
     this.req      = req;
@@ -113,11 +109,12 @@ Session.prototype.on_write_data = function (chunk) {
     for (var rss_id in this.read_sessions) {
         var rss = this.read_sessions[rss_id];
         if (rss.flag === "1") {
-            if (!rss.write(chunk)) {
-                console.log("--- write chunk false");
-            }
+            rss.res.write(chunk, function () {
+                console.log("--- write chunk OK");
+            });
         }
     }
+
 };
 
 Session.prototype.new_session_id = function () {
