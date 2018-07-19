@@ -1,0 +1,217 @@
+<div id="body-container">
+    <div id="body-content">
+        {{> nav}}
+        <section class="page container">
+            <form class="form-horizontal">
+                <div class="container">
+                    <div class="row">
+                        <div id="server-settings-row" class="span7">
+                            <fieldset>
+                                <legend>工作参数</legend>
+                                <div id="multi-channels-type-setting" class="control-group ">
+                                    <label class="control-label">工作模式设置<br/>(修改会清空已有数据)</label>
+                                    <div class="controls">
+                                        <select id="work-mode" class="span3">
+                                            <option id="fsc-fs" value="fsc-fs">独立使用模式</option>
+                                            <option id="fs"     value="fs">仅作为存储扩展模式</option>
+                                        </select>
+                                        <p id="help" class="help-block"></p>
+                                    </div>
+                                </div>
+
+                                <div id="set-fsc-host" class="control-group hidden">
+                                    <label class="control-label">存储服务器主控IP </label>
+                                    <div class="controls">
+                                        <input id="fsc-host" class="span3" type="text" autocomplete="false" />
+                                    </div>
+                                </div>
+
+                                <div id="set-fsc-port" class="control-group hidden">
+                                    <label class="control-label">存储服务器主控端口 </label>
+                                    <div class="controls">
+                                        <input id="fsc-port" class="span3" type="number" value="7000" autocomplete="false" />
+                                    </div>
+                                </div>
+
+                                <div class="control-group ">
+                                    <label class="control-label">网络连接蜂鸣器监控</label>
+                                    <div class="controls">
+                                        <input id="beep-monitor-net" type="checkbox" checked="checked" class="switch span4" />
+                                    </div>
+                                </div>
+
+                                <div class="control-group ">
+                                    <label class="control-label">互联网连接络蜂鸣器监控</label>
+                                    <div class="controls">
+                                        <input id="beep-monitor-internet" type="checkbox" checked="checked" class="switch span4" />
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+
+                        <div id="server-settings-row" class="span7">
+                            <fieldset>
+                                <legend>网络端口设置(修改后需重新登录)</legend><br/>
+                                <div class="control-group ">
+                                    <label class="control-label">web管理界面端口 </label>
+                                    <div class="controls">
+                                        <input id="web-port" type="number" value="8000" class="span3" autocomplete="false" />
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div id="api-settings-row" class="span7">
+                            <fieldset>
+                                <legend>时间同步设置</legend><br/>
+                                <div class="control-group ">
+                                    <label class="control-label">时间同步模式设置</label>
+                                    <div class="controls">
+                                        <select id="time-sync-mode" class="span3">
+                                            <option value="ntp">自动同步互联网时间</option>
+                                            <option value="jingxun">同步警讯时间</option>
+                                        </select>
+                                        <p id="help" class="help-block"></p>
+                                    </div>
+                                </div>
+
+                                <div class="control-group ">
+                                    <label class="control-label">警讯时间同步服务器IP</label>
+                                    <div class="controls">
+                                        <input id="api-key" class="span3" type="text" value="" autocomplete="false" />
+                                    </div>
+                                </div>
+                                <div class="control-group ">
+                                    <label class="control-label">系统时间 </label>
+                                    <div class="controls">
+                                        <input id="system-time" class="span3" type="text" value="" placeholder="2016-5-17 13:33:34" autocomplete="false" />
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+{{#section 'js'}}
+<script src="/js-plugins/bootstrap/bootstrap-switch.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function() {
+        $.fn.bootstrapSwitch.defaults.size = 'small';
+
+        function on_data_changed() {
+            window.onbeforeunload = on_exit;
+        };
+
+        function on_exit(e) {
+            var e = e || window.event;
+            // For IE and Firefox prior to version 4
+            if (e) {
+                e.returnValue = '数据已修改';
+            }
+            // For Safari
+            return '数据已修改';
+        };
+
+        Date.prototype.format = function(fmt) {
+            if (!fmt) {
+                fmt = "yyyy-MM-dd hh:mm:ss";
+            }
+            var o = {
+                "M+": this.getMonth() + 1, //月份
+                "d+": this.getDate(), //日
+                "h+": this.getHours(), //小时
+                "m+": this.getMinutes(), //分
+                "s+": this.getSeconds(), //秒
+                "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+                "S": this.getMilliseconds() //毫秒
+            };
+            if (/(y+)/.test(fmt)) {
+                fmt = fmt.replace(
+                    RegExp.$1,
+                    (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+            }
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+
+        $("#work-mode").change(function() {
+            var value = $("#work-mode").children('option:selected').val();
+            if (value === "fsc-fs") {
+                $("#set-fsc-host").addClass("hidden");
+                $("#set-fsc-port").addClass("hidden");
+
+            } else if (value === "fs") {
+                $("#set-fsc-host").removeClass("hidden");
+                $("#set-fsc-port").removeClass("hidden");
+
+                $("#help").text("(需配合存储主控使用)");
+            }
+        });
+
+        $(".switch").bootstrapSwitch();
+        var settings = {};
+        $("#submit-confirm-button").click(function() {
+            for (var field in settings) {
+                if (settings.hasOwnProperty(field)) {
+                    var value = settings[field];
+                    var e = $("#" + field);
+                    if (typeof value === 'boolean' && value !== undefined) {
+                        settings[field] = e.bootstrapSwitch('state');
+                    } else if (typeof value === 'number') {
+                        settings[field] = parseInt(e.val(), 10);
+                    } else {
+                        settings[field] = e.val();
+                    }
+                }
+            }
+            if (!confirm("确认保存?")) {
+                return;
+            };
+            var s = JSON.stringify(settings);
+            $.getJSON("/api/set-sys?data=" + s)
+                .done(function(data) {
+                    if (data.result == "OK") {
+                        window.onbeforeunload = null;
+                        alert("配置保存成功.");
+                    } else {
+                        alert("配置保存失败:" + JSON.stringify(data));
+                        return false;
+                    }
+                })
+                .fail(function(textStatus, jqXHR, error) {
+                    alert("数据保存失败, 请重新保存.", error);
+                });
+            return true;
+        });
+
+        $.getJSON("/api/get-sys-settings", function(json) {
+            $("#system-time").attr("placeholder", (new Date()).format());
+            settings = json;
+            for (var field in settings) {
+                if (settings.hasOwnProperty(field)) {
+                    var value = settings[field];
+                    var e = $("#" + field);
+                    if (typeof value === 'boolean') {
+                        if (value) {
+                            e.bootstrapSwitch('state', true, true);
+                        } else {
+                            e.bootstrapSwitch('state', false, false);
+                        }
+                    } else {
+                        e.val(value);
+                    }
+                    e.change(on_data_changed);
+                }
+            }
+        });
+    });
+</script>
+{{/section}}

@@ -8,28 +8,38 @@ var fs           = require('fs');
 var favicon      = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
-var partials     = require('./partials');
-
+var exphbs       = require('express-handlebars');
+var hbs_helpers  = require('./handlebar-helpers.js');
 var web          = express();
-web.sessions = {};
-web.SESSION_ALIVE_TIME = 1000 * 60 * 30; //  3 minutes
 
-web.set('views', path.join(__dirname, './views'));
-web.set('view engine', 'hjs');
+var hbs = exphbs.create({
+  partialsDir   : path.join(__dirname, 'views/partials/'),
+  layoutsDir    : path.join(__dirname, "views/layouts/"),
+  defaultLayout : 'main',
+  extname       : '.html',
+  helpers       : hbs_helpers
+});
+
+web.engine('html', hbs.engine);
+web.set('view engine', 'html');
+web.set('views', path.join(__dirname, 'views'));
 
 web.use(bodyParser.json());
 web.use(bodyParser.urlencoded({ extended: false }));
 web.use(cookieParser());
 web.use(express.static(path.join(__dirname, './public')));
 
-web.all("*", function (req, res, next) {
-    var pathname = url.parse(req.url).pathname;
-    if (pathname === "/favicon.ico") {
-        res.end();
-        return;
-    }
+web.sessions = {};
+web.SESSION_ALIVE_TIME = 1000 * 60 * 30; //  3 minutes
 
-    next();
+// web.all("*", function (req, res, next) {
+//     var pathname = url.parse(req.url).pathname;
+//     if (pathname === "/favicon.ico") {
+//         res.end();
+//         return;
+//     }
+
+//     next();
     /*
     if (req.query.key === req.app.server.config.ipr["api-key"]) {
         next();
@@ -47,38 +57,26 @@ web.all("*", function (req, res, next) {
         }
     }
     */
-});
+// });
 
 var API_man = require("./api-man.js");
 var api_man = new API_man(web, __dirname + "/api", "/api/");
 api_man.mount();
-var no_save_btn     = ['sys-log', 'index', 'event-log', 'session-log',
-                       'set-update-ver', 'set-white-list'];
+var no_save_btn     = ['sys-log', 'index', 'event-log'];
 var show_export_btn = ['sys-log', 'event-log', 'session-log'];
+
 web.get("/", function (req, res, next) {
     try {
         //var config = req.app.server.config;
         res.render("index", {
-            // title            : req.app.server.config.cwcdn.MODEL,
-            title            : "CN8040",
-            partials         : partials,
-            show_save_btn    : false
+          title            : "CN8040",
+          show_save_btn    : false
         });
     } catch (error) {
         console.log(error);
     }
 });
 
-web.get("/*.html", function (req, res, next) {
-    var pathname = url.parse(req.url).pathname;
-    pathname = path.join(__dirname, './views', pathname);
-    if (fs.existsSync(pathname)) {
-        res.sendFile(pathname);
-    } else {
-        res.status(404).end(req.pah + " not found!");
-    }
-});
-        
 web.get("/:view", function (req, res, next) {
     try {
         //var config = req.app.server.config;
@@ -86,9 +84,8 @@ web.get("/:view", function (req, res, next) {
         res.render(view, {
             // title            : req.app.server.config.cwcdn.MODEL,
             title            : "CN8040",
-            partials         : partials,
             show_save_btn    : no_save_btn.indexOf(view) < 0,
-            show_export_btn  : show_export_btn.indexOf(view) >= 0,
+            show_export_btn  : show_export_btn.indexOf(view) >= 0
         });
     } catch (error) {
         console.log(error);

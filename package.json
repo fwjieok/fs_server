@@ -108,6 +108,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "express-handlebars": "^3.0.0",
+    "extend": "^3.0.1",
     "favicon": {
       "dependencies": {
         "request": {
@@ -669,6 +670,8 @@
       "resolved": "https://registry.npmjs.org/hogan.js/-/hogan.js-3.0.2.tgz",
       "version": "3.0.2"
     },
+    "http-proxy": "^1.17.0",
+    "mkdirp": "^0.5.1",
     "morgan": {
       "dependencies": {
         "basic-auth": {
@@ -769,12 +772,14 @@
       "resolved": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.1.1.tgz",
       "version": "1.1.1"
     },
+    "request": "^2.87.0",
     "semver": {
       "integrity": "sha1-x6BxWKgL7dBSNVt3DYLWZA+AO+c=",
       "resolved": "https://registry.npmjs.org/semver/-/semver-4.3.2.tgz",
       "version": "4.3.2"
     },
     "serve-favicon": "^2.5.0",
+    "small-uuid": "^1.0.1",
     "split": {
       "integrity": "sha512-mTyOoPbrivtXnwnIxZRFYRrPNtEFKlpB2fvjSnCQUiAA6qAZzqwna5envK4uk6OIeP17CsdF3rSBGYVBsU0Tkg==",
       "requires": {
@@ -788,6 +793,7 @@
       "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz",
       "version": "2.3.8"
     },
+    "tough-cookie": "^2.4.3",
     "ursa": {
       "integrity": "sha1-Ciq/t9xCZ/czsPjy/H8siV1ApBM=",
       "requires": {
@@ -797,6 +803,7 @@
       "resolved": "https://registry.npmjs.org/ursa/-/ursa-0.9.4.tgz",
       "version": "0.9.4"
     },
+    "uuid": "^3.3.2",
     "xtend": {
       "integrity": "sha1-pcbVMr5lbiPbgg77lDofBJmNY68=",
       "resolved": "https://registry.npmjs.org/xtend/-/xtend-4.0.1.tgz",

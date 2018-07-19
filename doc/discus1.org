@@ -1,0 +1,99 @@
+
+* 存储系统在哪里？
+  /sys/get-profile, result.fs
+
+* 设备时间：通过things/jnode库同步时间
+* 设备如何创建时间轴
+** request
+   #+BEGIN_SRC 
+   设备启动时调用[get]http://<fs>/open?flag=<flag>&data=<dev-json>, 没有就创建，有就返回taxid
+   flag = O_CREAT | O_RDONLY | O_RDWR
+   
+   #+END_SRC
+  <dev-json> = {
+     tid : <tid>,
+     channels : [
+         {
+            chid : "ch-v1",
+            name : "樊家抓拍器视频流“
+            type :  video,
+            format : "h264"
+        },
+        {
+            chid : "ch-p1",
+            name : "樊家抓拍器图片流“
+            type : picture,
+            format : "jpeg",
+        }
+        {
+            chid : "audio",
+            name : <...>,
+            type : audio,
+            format : adpcm
+        }
+     ]
+  }
+** response
+   result = {
+      tid   : <tid>,
+      taxid : <string>,
+      channels : [
+        {
+            chid     : <string>,
+            streamid : <string>
+        }
+        ...
+      ]
+   }
+* 查询接口
+** 根据tid查询流信息
+*** url
+   #+BEGIN_SRC  html
+     GET http://<fs>/get-stream-by-tid?tid=<tid>
+   #+END_SRC
+*** response
+    #+BEGIN_SRC js
+      result = {
+          tid   : <tid>,
+          taxid : <string>,
+          channels : [{
+              streamid : <string>,
+              chid     : <string>,
+              name     : "樊家抓拍器视频流"
+              type     :  video,
+              format   : "h264"
+          }]
+      }
+
+    #+END_SRC
+* 推流
+** 数据格式定义
+*** http header
+  #+BEGIN_SRC 
+     streamid = <streamid>
+     type     = <stream type>
+     format   = <stream format>
+  #+END_SRC
+
+*** part header
+  #+BEGIN_SRC 
+    datetime    = <Date time>  // absolute time of first frame
+    timestamp   = <??????>     // timestamp of first frame
+    frames      = <number>　　   // frames inside part
+    sample-rate = <sample rate>  // frames / second
+  #+END_SRC
+
+每一个part内容必须满足以下约束条件：
+  - 每个part内必须包含连续的数据帧
+  - 每个part必须包含起始帧的绝对时间
+  
+** request
+  [post]http://<fs>/stream/write
+
+* 拉流
+  [get]http://<fs>/stream/read?timestreamid=<stream id>&from=<date time>&to=<date time>
+
+** 参数说明
+   - 没有from, 从当前时间开始
+   - 没有to，长连接，直到客户端断开
+   

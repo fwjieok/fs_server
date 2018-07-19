@@ -423,6 +423,11 @@ CREATE INDEX download_sid_idx ON download USING btree (sid);
 
 CREATE INDEX fid_hash_idx ON fid USING btree (hash);
 
+--
+-- Name: fid_sid_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fid_sid_idx ON fid USING btree (sid);
 
 --
 -- Name: fid_storage_idx; Type: INDEX; Schema: public; Owner: -
@@ -458,4 +463,86 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
+
+-- 流sql
+
+CREATE TABLE timeline (
+    taxid text NOT NULL,
+    description text,
+    tid text UNIQUE,
+    t_created timestamp without time zone,
+    t_modified timestamp without time zone
+);
+
+ALTER TABLE ONLY timeline
+    ADD CONSTRAINT timeline_pkey PRIMARY KEY (taxid);
+
+COMMENT ON COLUMN timeline.taxid IS '时间轴id:';
+COMMENT ON COLUMN timeline.description IS '时间轴描述:';
+COMMENT ON COLUMN timeline.tid IS '时间轴的设备标识:';
+COMMENT ON COLUMN timeline.t_created IS '时间轴创建时间:';
+COMMENT ON COLUMN timeline.t_modified IS '时间轴修改时间:';
+
+
+CREATE TABLE stream (
+    streamid text NOT NULL,
+    name text,
+    chid text,
+    type text,
+    format text,
+    taxid text NOT NULL REFERENCES timeline(taxid),
+    t_created timestamp without time zone,
+    t_modified timestamp without time zone
+);
+
+ALTER TABLE ONLY stream
+    ADD CONSTRAINT stream_pkey PRIMARY KEY (streamid);
+
+ALTER TABLE stream ADD CONSTRAINT uk_tbl_unique_host unique (protocol,ip,port);
+
+
+CREATE INDEX stream_taxid_idx ON stream USING btree (taxid);
+
+COMMENT ON COLUMN stream.streamid IS '流id:';
+COMMENT ON COLUMN stream.description IS '流描述:';
+COMMENT ON COLUMN stream.identification IS '流通道:';
+COMMENT ON COLUMN stream.taxid IS '流绑定的时间轴tid:';
+COMMENT ON COLUMN stream.t_created IS '流创建时间:';
+COMMENT ON COLUMN stream.t_modified IS '流修改时间:';
+
+-- 创建块表
+CREATE TABLE block
+(
+    bid text NOT NULL PRIMARY KEY,
+    storage text NOT NULL REFERENCES storage(tid),
+    fid text ,
+    streamid text ,
+    hash text,
+    size bigint,
+    sequence int default 0,
+    frames int default 0,
+    sample_rate int default 0,
+    meta jsonb default '{}',
+    t_upload timestamp without time zone,
+    t_start bigint,
+    t_end bigint
+);
+
+CREATE INDEX block_bid_idx ON block USING btree (bid);
+CREATE INDEX block_fid_idx ON block USING btree (fid);
+CREATE INDEX block_sid_idx ON block USING btree (streamid);
+CREATE INDEX block_storage_idx ON block USING btree (storage);
+
+COMMENT ON COLUMN block.bid IS '块id:';
+COMMENT ON COLUMN block.storage IS '块存储的位置:';
+COMMENT ON COLUMN block.fid IS '对应的文件的fid:';
+COMMENT ON COLUMN block.streamid IS '对应的流的id:';
+COMMENT ON COLUMN block.hash IS '块的哈希值:';
+COMMENT ON COLUMN block.size IS '块的大小:';
+COMMENT ON COLUMN block.t_upload IS '上传时间:';
+COMMENT ON COLUMN block.sequence IS '块的序号: 适用于大文件分块';
+COMMENT ON COLUMN block.meta IS '块内存储内容的信息：对于流存储的是流内帧信息';
+COMMENT ON COLUMN block.t_start IS '块内帧的起始时间: 适用流';
+COMMENT ON COLUMN block.t_end IS '块内帧的结束时间: 适用流';
+
 

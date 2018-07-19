@@ -1,6 +1,5 @@
 'use strict';
 /*jslint vars:true*/
-var hanson = require('hanson');
 var fs = require('fs');
 
 var app = null;
@@ -20,7 +19,7 @@ function check_session_timeout() {
     }
 }
 
-setInterval(check_session_timeout, 2000);
+setInterval(check_session_timeout, 5000);
 
 function new_sid() {
     if (!app) { return; }
@@ -37,7 +36,8 @@ function new_sid() {
 module.exports = function (req, res) {
     app = req.app;
     if (!app.sessions) { app.sessions = {}; }
-    var pass = app.server.config.ipr["web-pass"];
+    //var pass = app.server.config.ipr["web-pass"];
+    var pass = "admin";
     if (req.body.username === "admin" && req.body.password === pass) {
         req.app.server.log(0, "admin",
                            req.socket.remoteAddress,

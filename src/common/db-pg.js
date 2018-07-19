@@ -2,7 +2,6 @@
 
 var pg   = require('pg');
 var fs   = require('fs');
-var uuid = require('small-uuid');
 
 var config = {
     database: 'filedb',
@@ -19,7 +18,6 @@ function Db() {
     this.db.on('error', function (err, client) {
         console.error('pg.Pool error', err.message);
     });
-
 }
 
 Db.prototype.query = function (sql, param, callback) {
@@ -39,15 +37,6 @@ Db.prototype.query = function (sql, param, callback) {
             });
         }
     });
-};
-
-Db.prototype.get_storage = function (sql, params, callback) {
-    (async () => {
-        var result = await this.db.query(sql, params);
-        if (callback) {
-            callback(result.rows);
-        }
-    })();
 };
 
 Db.prototype.get_usable_storage = function (callback) {

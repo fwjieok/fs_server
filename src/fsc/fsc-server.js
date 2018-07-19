@@ -1,12 +1,12 @@
 'use strict';
 /*jslint vars : true*/
-var util	= require('util');
-var path  = require('path');
-var express	= require('express');
-var API_man	= require("../common/api-man.js");
-var Db              = require("../common/db-pg.js");
-var file_proxy	    = require("./file-proxy.js");
-var Stream_session	= require("./stream-session.js");
+
+var util       = require('util');
+var path       = require('path');
+var express    = require('express');
+var API_man    = require("../common/api-man.js");
+var Db         = require("../common/db-pg.js");
+var file_proxy = require("./file-proxy.js");
 
 function Fsc_server () {
   this.web     = null;
