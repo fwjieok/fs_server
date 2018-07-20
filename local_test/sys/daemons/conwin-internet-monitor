@@ -1,0 +1,11 @@
+#!/bin/sh
+while true; do
+    ping baidu.com -c 3 > /dev/null
+    code=$?
+    if [ "$code" = "0" ]; then
+        touch $JFLAGS/sys-internet-ready
+    else
+        rm $JFLAGS/sys-internet-ready
+    fi
+    sleep 30
+done

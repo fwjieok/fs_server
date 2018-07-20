@@ -33,24 +33,28 @@ function new_sid() {
     return sid;
 }
 
-module.exports = function (req, res) {
+module.exports = function(req, res) {
+    res.redirect('/');
+    console.log(req.body);
+    return;
+
     app = req.app;
     if (!app.sessions) { app.sessions = {}; }
     //var pass = app.server.config.ipr["web-pass"];
     var pass = "admin";
     if (req.body.username === "admin" && req.body.password === pass) {
         req.app.server.log(0, "admin",
-                           req.socket.remoteAddress,
-                           req.socket.remotePort, "登录");
+            req.socket.remoteAddress,
+            req.socket.remotePort, "登录");
         console.log("set cookies");
         var sid = new_sid();
         app.sessions[sid] = {
-            ip   : req.socket.remoteAddress,
-            port : req.socket.remotePort,
-            user : req.body.username,
-            time : new Date()
+            ip: req.socket.remoteAddress,
+            port: req.socket.remotePort,
+            user: req.body.username,
+            time: new Date()
         };
-        res.cookie("sid", sid,  {
+        res.cookie("sid", sid, {
             maxAge: app.SESSION_ALIVE_TIME,
             httpOnly: true
         });

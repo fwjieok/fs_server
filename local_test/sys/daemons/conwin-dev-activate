@@ -1,0 +1,25 @@
+#!/bin/sh
+echo "conwin-dev-active"
+
+file_cert="$JSYS/etc/jnode.cert"
+file_cwcdn="$JSYS/etc/cwcdn.conf"
+flag_certified="$JFLAGS/sys-jnode-certified"
+
+while [ ! -f $JFLAGS/sys-internet-ready ] ; do
+    echo "[conwin-dev-activate] wait internet ready"
+    sleep 3
+done
+while [ ! -f $file_cert ] ; do
+    [ -f "$flag_certified" ] && rm $flag_certified
+    tid=$(cat $file_cwcdn | grep "TID" | cut -d = -f 2)
+    mac=$(ifconfig | awk '{if (NR == 1) {print $5;}}')
+    url="$COS/tid/a?tid=$tid&mac=$mac"
+    echo "url = $url"
+    cert=$(wget -q -O- "$url")
+    echo "cert = $cert"
+    echo $cert > $file_cert
+    touch $flag_certified
+    sleep 10
+done
+touch $flag_certified
+

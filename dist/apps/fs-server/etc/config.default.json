@@ -1,0 +1,21 @@
+{
+    sys: {
+        "storage-number"        : 1,
+        "work-mode"             : "fsc-fs",
+        "fsc-host"              : "",
+        "fsc-port"              : 7000,
+        "beep-monitor-fsc"      : false,
+	    "beep-monitor-net"      : true,
+	    "beep-monitor-internet" : true,
+        "web-pass"              : "admin"
+	    "web-port"              : 8000
+    },
+    database: {
+        database : 'filedb',
+        host     : "localhost",
+        port     : 5432,
+        user     : "postgres",
+        password : "123456"
+    }
+    
+}

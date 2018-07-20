@@ -26,6 +26,11 @@ module.exports = function(req, res) {
         target: target
     };
 
+    proxy.on('error', function(err, req, res) {
+        console.log("--- proxy error ------");
+        res.status(500).end();
+    });
+
     proxy.web(req, res, option);
     proxy.on('proxyReq', function(proxyReq, req, res, options) {
         proxyReq.setHeader('Host', host);

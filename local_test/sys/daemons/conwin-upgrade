@@ -1,0 +1,181 @@
+#!/bin/sh
+
+do_upgrade(){
+    # cat conwin-cn2400-v0.0.0.14.tar.gz.sign | openssl enc  -base64  -d | openssl rsautl -verify -pubin -inkey /conwin/etc/cwmake.pub
+    # openssl aes-256-cbc -d -in conwin-cn2400-v0.0.0.14.tar.gz.bin -out dec.tgz -pass file:key
+    cd $JTMP/download
+    [ -d "install" ] && rm -rf install
+    [ -d "upgrade.tgz" ] && rm -rf upgrade.tgz
+    if [ -f "upgrade.ver" ]; then
+        if [ ! -f "upgrade.bin" ]; then
+            rm -rf *
+        fi
+        
+    fi
+
+    [ ! -f "upgrade.bin" ] && return
+    [ ! -f "upgrade.ver" ] && return
+    [ ! -f "upgrade.sign" ] && return
+    [ ! -f "$JSYS/etc/cwmake.pub" ] && return
+
+    [ -f "upgrade.tgz" ] && rm upgrade.tgz
+    echo "Checking package signature..."
+    sign=$(cat upgrade.sign | openssl enc  -base64  -d | openssl rsautl -verify -pubin -inkey $JSYS/etc/cwmake.pub)
+    conwin=$(echo $sign | cut -d ":" -f 1)
+    md5=$(echo $sign | cut -d ":" -f 2)
+    key=$(echo $sign | cut -d ":" -f 3)
+    if [ ! "$conwin" = "conwin" ]; then
+        echo "Invalid signature"
+        rm -rf *
+        return
+    fi
+    echo "Valid Signature ..."
+    echo "Decode bin..."
+    openssl aes-256-cbc -d -in upgrade.bin -out upgrade.tgz -pass pass:$key
+    if [ ! "$?" = "0" ]; then
+        echo "decode fail"
+        rm -rf *
+        return 3
+    fi
+    rm upgrade.bin
+    mkdir install
+    echo "do extract package..."
+    tar -xf upgrade.tgz -C install
+    if [ ! -f "install/install.sh" ]; then
+        echo "No install script"
+        rm -rf *
+        return
+    fi
+    echo "Start install...."
+    ver=$(cat upgrade.ver)
+    # [ -d "/conwin.bak" ] && rm -rf /conwin.bak
+    # [ -d "/conwin" ] && mv /conwin /conwin.bak
+    # mkdir /conwin
+    cd install
+    sh install.sh
+    ret=$?
+    if [ "$ret" = "0" ]; then
+        echo "[$ret]install successfull, remove backup..."
+        sed -i "s/VERSION=.*/VERSION=$ver/" $JSYS/etc/cwcdn.conf
+        # [ -d "/conwin.bak" ] && rm -rf /conwin.bak
+        cd ..
+        rm -rf *
+        reboot
+    else
+        echo "[$ret]install fail, restore backup..."
+        # rm -rf /conwin
+        # mv /conwin.bak /conwin
+    fi
+    cd ..
+    echo "install done, clean download"
+    rm -rf *
+}
+
+[ ! -d "$JTMP/download" ] && mkdir -p $JTMP/download
+
+touch $JFLAGS/sys-allow-auto-upgrade
+
+interval=0
+echo "cwcdn_conf = $cwcdn_conf"
+while true; do
+    sleep $interval
+    if [ ! -f "$JFLAGS/sys-allow-auto-upgrade" ] ; then
+        sleep 10
+        continue
+    fi
+    echo "[$(date "+%Y-%m-%d %H:%M:%S")] check update..."
+    tid=$(cat $cwcdn_conf  | grep "TID=" | sed "s/TID=\(.*\)/\1/")
+    servers=$(cat $cwcdn_conf  | grep "COS=" | sed "s/COS=\(.*\)/\1/")
+    interval=$(cat $cwcdn_conf  | grep "INTERVAL=" | sed "s/INTERVAL=\(.*\)/\1/")
+    [ "$interval" = "" ] && interval=30
+    salt="${RANDOM}"
+    pos=${#salt}
+    pos=$(expr $pos - 2)
+    salt=${salt:$pos:2}
+    interval=$(expr $interval + $salt)
+    echo "salt=$salt interval reset to $interval"
+    url="$servers/tid/v?tid=$tid&a=cos"
+    stat=$(wget -q -O- $url )
+    if [ $? -ne 0 ]; then
+        echo "Can not get download info..."
+        echo "url = $url"
+        continue
+    fi
+
+    eval $stat
+    # echo "version=$version"
+    # echo "urls   =$urls"
+    # echo "modules=$modules"
+    if [ ! "$modules" = "MODULES" ]; then
+	mods=$modules
+	changed=false
+        modules=$(echo $modules | sed "s/;/\n/g")
+        for module in $modules ; do
+	    [ -f $JSYS/etc/modules/$module.cert ] && continue;
+            url="$COS/tid/a?tid=$module&mac=$MAC"
+            echo "get module url = $url"
+            cert=$(wget -q -O- "$url")
+            code=$?
+            if [ "$code" = "0" ]; then
+                echo "cert = $cert"
+                echo $cert > $JSYS/etc/modules/$module.cert
+		changed=true
+            else
+                fail=true
+            fi
+        done
+        if [ "$fail" = "" ]; then
+	    if [ ! "$MODULES" = "\"$mods\"" ]; then
+		sed -i "/MODULES=.*/d" $cwcdn_conf
+		echo "MODULES=\"$mods\"" >> $cwcdn_conf
+		changed=true
+	    fi
+	fi
+	if [ "$changed" = "true" ]; then
+	    echo "modules changed"
+	    load_modules
+	fi
+    fi
+    ver_local=$(cat $cwcdn_conf  | grep "VERSION=" | sed "s/VERSION=\(.*\)/\1/")
+    if [ "$version" = "$ver_local" ]; then
+        echo "No newer version..."
+        continue
+    fi
+
+    echo "New version found = [$version]"
+    cd $JTMP/download
+    if [ -f "upgrade.ver" ]; then
+        v=$(cat upgrade.ver);
+        [ ! "$v" = "$version" ] && rm *
+    fi
+
+    if [ ! -f "upgrade.ver" ]; then
+        echo "download ...."
+        urls=$(echo $urls | sed "s/;/\n/g")
+        for url in $urls ; do
+            [ -f "upgrade.bin" ] && rm upgrade.bin
+            [ -f "upgrade.ver" ] && rm upgrade.ver
+            [ -f "upgrade.sign" ] && rm upgrade.sign
+
+            [ "$url" = "" ] && continue
+
+            url="$url"
+            echo "Downloading.... [$url]"
+            wget -O upgrade.bin "$url"
+            if [ ! "$?" = "0" ]; then
+                continue
+            fi
+            wget -O upgrade.sign "$url.sign"
+            if [ ! "$?" = "0" ]; then
+                continue
+            fi
+            echo "$version" > upgrade.ver
+            break;
+        done
+    fi
+    if [ -f "upgrade.ver" ]; then
+        touch $JFLAGS/sys-upgrading
+        do_upgrade
+        rm $JFLAGS/sys-upgrading
+    fi
+done;

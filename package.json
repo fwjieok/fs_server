@@ -671,6 +671,7 @@
       "version": "3.0.2"
     },
     "http-proxy": "^1.17.0",
+    "ico": "^0.3.3",
     "mkdirp": "^0.5.1",
     "morgan": {
       "dependencies": {

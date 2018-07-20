@@ -10,42 +10,20 @@ function valid_boolean(value) {
     return false;
 }
 
-function valid_format(format) {
-    if (['conwin', '685'].indexOf(format) < 0) { return false; }
-    return true;
-}
-
 var valid_field = {};
 
-valid_field["reciver-number"] = function (value) {
+valid_field["storage-number"] = function (value) {
     if (typeof value !== 'number') { return false; }
-    if (value < 0 || value > 9) { return false; }
     return true;
 };
 
-valid_field["multi-channels-type"]    = function (value) {
-    var types = [0, 1, 2];
+valid_field["work-mode"]    = function (value) {
+    var types = ["fsc-fs", "fs"];
     if (types.indexOf(value) < 0) { return false; }
     return true;
 };
 
-valid_field["serial-baud"]    = function (value) {
-    var bauds = [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
-    if (bauds.indexOf(value) < 0) { return false; }
-    return true;
-};
-
-valid_field["serial-format"]                    = valid_format;
-valid_field["report-event-online-offline"]      = valid_boolean;
-valid_field["report-status-online-offline"]     = valid_boolean;
-valid_field["allow-control-device"]             = valid_boolean;
-
-valid_field["tcp-max-connections"] = function (value) {
-    if (typeof value !== 'number') { return false; }
-    if (value < 1 || value > 100) { return false; }
-    return true;
-};
-valid_field["allow-connection-ip"] = function (ipStr) {
+valid_field["fsc-host"] = function (ipStr) {
     if (typeof ipStr !== 'string') { return false; }
     var regexp = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/;
     if (regexp.test(ipStr)) {
@@ -56,33 +34,9 @@ valid_field["allow-connection-ip"] = function (ipStr) {
     return false;
 };
 
-valid_field["tcp-format"]                       = valid_format;
-valid_field["bind-connection-ip"]               = valid_boolean;
-valid_field["tcp-report-event-online-offline"]  = valid_boolean;
-valid_field["tcp-report-status-online-offline"] = valid_boolean;
-valid_field["tcp-allow-control-device"]         = valid_boolean;
-
-valid_field["panel-event-first"]                = valid_boolean;
-valid_field["log-online-offline"]               = valid_boolean;
-
-valid_field["monitor-beep-serial"]              = valid_boolean;
-valid_field["monitor-beep-tcp"]                 = valid_boolean;
-valid_field["monitor-beep-net"]                 = valid_boolean;
-valid_field["remote-program-enabled"]           = valid_boolean;
-valid_field["remote-control-pwd-save-enabled"]  = valid_boolean;
-valid_field["white-list-enabled"]               = valid_boolean;
-
-valid_field["confirm-offline-time"]  = function (value) {
-    if (typeof value !== 'number') { return false; }
-    if (value < 0 || value > 1200) { return false; }
-    return true;
-};
-
-valid_field["center-heartbeat-time"]  = function (value) {
-    if (typeof value !== 'number') { return false; }
-    if (value < 0) { return false; }
-    return true;
-};
+valid_field["beep-monitor-net"]       = valid_boolean;
+valid_field["beep-monitor-internet"]  = valid_boolean;
+valid_field["beep-monitor-fsc"]       = valid_boolean;
 
 valid_field["api-key"]               = function (value) {
     if (typeof value !== 'string') { return false; }
@@ -99,25 +53,12 @@ valid_field["web-port"] = function (value) {
     return true;
 };
 
-valid_field["remote-program-port"] = function (value) {
-    if (typeof value !== 'number') { return false; }
-    if (value < 1000 || value > 65535) { return false; }
-    return true;
-};
-
-valid_field["tcp-server-port"] = function (value) {
-    if (typeof value !== 'number') { return false; }
-    if (value < 1000 || value > 65535) { return false; }
-    return true;
-};
-
 function log(req, msg) {
     req.app.server.log(0, "admin",
                        req.socket.remoteAddress,
                        req.socket.remotePort,
                        msg);
 }
-
 
 function set_system_time(time, req) {
     var exec = require('child_process').exec, child;
@@ -126,21 +67,21 @@ function set_system_time(time, req) {
         // console.log('stdout: ' + stdout);
         // console.log('stderr: ' + stderr);
         if (error !== null) {
-            req.app.server.log(0, "admin",
-                               req.socket.remoteAddress,
-                               req.socket.remotePort, "重置系统时间失败:", time, stderr);
+            req.app.log(0, "admin",
+                        req.socket.remoteAddress,
+                        req.socket.remotePort, "重置系统时间失败:", time, stderr);
             console.log('exec error: ' + error);
         } else {
-            req.app.server.log(0, "admin",
-                               req.socket.remoteAddress,
-                               req.socket.remotePort, "重置系统时间成功:" + time);
+            req.app.log(0, "admin",
+                        req.socket.remoteAddress,
+                        req.socket.remotePort, "重置系统时间成功:" + time);
         }
     });
 }
 
-function set_monitor_beep(beep_type, enabled, req) {
+function set_beep_monitor(monitor, enabled, req) {
     var env  = process.env;
-    var file = env.JFLAGS + "/monitor-beep-" + beep_type;
+    var file = env.JFLAGS + "/monitor-beep-" + monitor;
     var info = "";
     if (enabled) {
 	    if (!fs.existsSync(file)) {
@@ -162,13 +103,9 @@ function set_monitor_beep(beep_type, enabled, req) {
 }
 
 var fields_need_reboot = [
-    "multi-channels-type",
-    "serial-baud",
-    "bind-connection-ip",
-    "allow-connection-ip",
-    "web-port",
-    "tcp-server-port",
-    "remote-program-port"
+    "work-mode",
+    "fsc-host",
+    "web-port"
 ];
 
 module.exports = function (req, res) {
@@ -214,34 +151,27 @@ module.exports = function (req, res) {
                 } 
                 config_old[key] = value;
 
-		        if (key === "monitor-beep-net") {
-		            set_monitor_beep("net", value, req);
+		        if (key === "beep-monitor-net") {
+		            set_beep_monitor("net", value, req);
                     loged = true;
 		        }
-		        if (key === "monitor-beep-serial") {
-		            set_monitor_beep("serial", value, req);
+		        if (key === "beep-monitor-internet") {
+		            set_beep_monitor("internet", value, req);
                     loged = true;
 		        }
-                if (key === "monitor-beep-tcp") {
-		            set_monitor_beep("tcp", value, req);
+                if (key === "monitor-beep-fsc") {
+                    set_beep_monitor("fsc", value, req);
                     loged = true;
 		        }
-                if (key === "white-list-enabled") {
-                    if (value === true) {
-                        log(req, "启用连接白名单");
-                    } else {
-                        log(req, "禁用连接白名单");
-                    }
-                    loged = true;
-                }
             } else {
-                console.log("[/api/set-ipr.js] error: ", key, value);
+                console.log("[/api/set-sys.js] error: ", key, value);
                 fail = true;
                 reason = key;
                 break;
             }
         }
     }
+    
     if (fail) { res.status(400).end(reason); return; }
     fs.writeFileSync(config_file, JSON.stringify(config_old, null, 4));
 
@@ -249,7 +179,7 @@ module.exports = function (req, res) {
     res.end(JSON.stringify(result));
 
     if (!loged) {
-        log(req, "接警机参数修改");
+        log(req, "系统参数修改");
     }
 
     if (need_reboot) {

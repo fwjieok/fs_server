@@ -1,0 +1,26 @@
+#!/bin/sh
+
+for module in $JSYS/etc/modules/*; do
+    [ ! -f $module ] && continue
+    echo "load modules : $module"
+    tid=$(cat $module \
+		   | json .token \
+		   | sed 's/"//g' \
+		   | openssl base64 -d \
+		   | openssl rsautl -verify -pubin -inkey  \
+			     $JSYS/etc/jnode.pub.pem \
+		   | json .tid \
+		   | sed 's/"//g')
+    model=$(cat $module \
+		   | json .token \
+		   | sed 's/"//g' \
+		   | openssl base64 -d \
+		   | openssl rsautl -verify -pubin -inkey  \
+			     $JSYS/etc/jnode.pub.pem \
+		   | json .model \
+		   | sed 's/"//g')
+    echo "model=$model tid=$tid"
+    file="$JFLAGS/module_""$tid""_""$model"
+    echo "file=$file"
+    [ ! "$model" = "" ] && touch $file
+done

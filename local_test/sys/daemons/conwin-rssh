@@ -1,0 +1,7 @@
+#!/bin/sh
+while true;  do
+    rssh=$(cat $CONWIN_HOME/etc/cwcdn.conf | grep rssh | awk -F = "{print $2}")
+    [ ! "$rssh" = "" ] \
+        && /usr/bin/sudo -u box /usr/bin/autossh -M 5678 -NR $rssh:localhost:22 box@rssh.conwin.cc
+    sleep 60
+done

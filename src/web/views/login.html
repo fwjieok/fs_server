@@ -1,60 +1,122 @@
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container">
-            <button class="btn btn-navbar" data-toggle="collapse" data-target="#app-nav-top-bar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-            <a href="/" class="brand"><i class="icon-leaf">CONWIN {{title}}</i></a>
-            <div id="app-nav-top-bar" class="nav-collapse">
-                <ul class="nav">
-                </ul>
-                <ul class="nav pull-right">
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="body-container">
-    <div id="body-content">
-        <div class='container'>
-            <div class="signin-row row">
-                <div class="span4"></div>
-                <div class="span8">
-                    <div class="container-signin">
-                        <legend>系统登录</legend>
-                        <form action="/api/do-login" method='POST' id='loginForm' class='form-signin' autocomplete='off'>
-                            <div class="form-inner">
-                                <div class="input-prepend">
+<!DOCTYPE html>
+<html>
 
-                                    <span class="add-on" rel="tooltip" title="Username or E-Mail Address" data-placement="top"><i class="icon-envelope"></i></span>
-                                    <input type='text' class='span4' name="username" id='username' />
-                                </div>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <title>丛文存储服务器</title>
+    <link rel="stylesheet" type="text/css" href="/css/login.css">
+    <script type="text/javascript" src="/js-plugins/jquery/jquery-1.10.2.min.js"></script>
 
-                                <div class="input-prepend">
+    <style type="text/css">
+        .login-box {
+            z-index: 1000;
+            float: right;
+            position: absolute;
+            right: 20%;
+            top: 10%;
+        }
+        
+        .login-box-form {
+            background-color: #23305a;
+            width: 300px;
+            height: auto;
+            margin: 120px auto 0 auto;
+            color: #2ec0f6;
+        }
+        
+        .login-box-form form {
+            padding: 10px;
+        }
+        
+        .login-box-form form input[type="text"] {
+            width: 270px;
+            height: 30px;
+            margin: 25px 10px 0px 0px;
+        }
+        
+        .login-box-form form input[type="password"] {
+            width: 270px;
+            height: 30px;
+            margin: 25px 10px 0px 0px;
+        }
+        
+        .login-box-form form button {
+            cursor: pointer;
+            width: 270px;
+            height: 44px;
+            margin-top: 25px;
+            padding: 0;
+            background: #2ec0f6;
+            -moz-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+            border: 1px solid #2ec0f6;
+            -moz-box-shadow: 0 15px 30px 0 rgba(255, 255, 255, .25) inset, 0 2px 7px 0 rgba(0, 0, 0, .2);
+            -webkit-box-shadow: 0 15px 30px 0 rgba(255, 255, 255, .25) inset, 0 2px 7px 0 rgba(0, 0, 0, .2);
+            box-shadow: 0 15px 30px 0 rgba(255, 255, 255, .25) inset, 0 2px 7px 0 rgba(0, 0, 0, .2);
+            font-family: 'PT Sans', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+            -o-transition: all .2s;
+            -moz-transition: all .2s;
+            -webkit-transition: all .2s;
+            -ms-transition: all .2s;
+        }
+    </style>
 
-                                    <span class="add-on"><i class="icon-key"></i></span>
-                                    <input type='password' class='span4' name="password" id='password' />
-                                </div>
-                            </div>
-                            <footer class="signin-actions">
-                                <input class="btn btn-primary" type='submit' id="submit" value='登录' />
-                            </footer>
-                        </form>
-                    </div>
+    <body>
+
+        <div id="contPar" class="contPar">
+            <div id="page1" style="z-index:1;">
+                <div class="title0">丛文警云存储服务器</div>
+                <div class="title1">金融、商铺、学校、公共安全、大数据</div>
+                <div class="imgGroug ">
+                    <ul>
+                        <!--
+                        <img alt="" style="display:none" class="img0" src="/images/login/page1_0.png">
+                        <img alt="" style="display:none" class="img1" src="/images/login/page1_1.png">
+                        <img alt="" style="display:none" class="img2" src="/images/login/page1_2.png">
+                        -->
+                        <img alt="" class="img0" src="/images/login/page1_0.png">
+                        <img alt="" class="img1" src="/images/login/page1_1.png">
+                        <img alt="" class="img2" src="/images/login/page1_2.png">
+                    </ul>
                 </div>
-                <div class="span3"></div>
+                <img alt="" class="img3" src="/images/login/background.jpg">
             </div>
         </div>
-    </div>
-</div>
+        <div class="login-box">
+            <div class="login-box-form">
+                <form action="/api/do-login" method="POST">
+                    <h2>登录</h2>
+                    <div style="margin:5px 0px;">
+                        <input type="text" placeholder="请输入账号..." />
+                    </div>
+                    <div style="margin:5px 0px;">
+                        <input type="password" placeholder="请输入密码..." />
+                    </div>
+                    <div style="margin:5px 0px;">
+                        <input type="text" style="width:150px;" placeholder="请输入验证码..." />
+                        <img src="" style="vertical-align:bottom;" alt="验证码" />
+                    </div>
+                    <button type="submit">登<span style="width:20px;"></span>录</button>
+                </form>
+            </div>
+        </div>
 
-{{#section 'js'}}
-<script type="text/javascript">
-    $(function() {
-        document.forms['loginForm'].elements['username'].focus();
-        $('body').addClass('pattern pattern-sandstone');
-    });
-</script>
-{{/section}}
+        <script type="text/javascript" src="/js-plugins/login.js"></script>
+
+        <script>
+            /*
+                                                            $(".img0").fadeIn(3000);
+                                                            $(".img1").fadeIn(5000);
+                                                            $(".img2").fadeIn(3000);
+                                                            */
+        </script>
+
+    </body>
+
+</html>

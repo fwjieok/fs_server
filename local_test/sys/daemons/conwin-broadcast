@@ -1,0 +1,5 @@
+while true; do
+    port=$(cat $CONWIN_HOME/etc/cwcdn.conf | grep broadcast | awk -F = "{print $2}")
+    [ ! "$port" = "" ] && socat UDP4-RECVFROM:$port,broadcast,fork EXEC:udp_boxinfo
+    sleep 60
+done

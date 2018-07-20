@@ -4,13 +4,11 @@
 var util = require('util');
 var path = require('path');
 var express = require('express');
-var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 var API_man = require("../common/api-man.js");
 
 function Fs_server() {
     this.web = null;
-    this.db = null;
 
     this.stream_sessions = {};
     this.protocol = "http";
@@ -39,5 +37,4 @@ Fs_server.prototype.start = function() {
     });
 };
 
-var fs = new Fs_server();
-fs.start();
+module.exports = Fs_server;

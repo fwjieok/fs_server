@@ -1,0 +1,7 @@
+#!/bin/sh
+[ ! "$(whoami)" = "root" ] && echo "need root user..." && exit
+pid=$(ps ax | grep "conwin-init" | grep -v "grep" | awk '{print $1}')
+
+[ "$pid" = "" ] && echo "conwin-init not running." && exit
+
+kill $pid

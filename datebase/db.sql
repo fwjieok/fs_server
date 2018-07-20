@@ -522,10 +522,10 @@ CREATE TABLE block
     sequence int default 0,
     frames int default 0,
     sample_rate int default 0,
-    meta jsonb default '{}',
     t_upload timestamp without time zone,
     t_start bigint,
-    t_end bigint
+    t_end bigint,
+    meta jsonb default '{}'
 );
 
 CREATE INDEX block_bid_idx ON block USING btree (bid);

@@ -1,0 +1,133 @@
+#!/bin/sh
+[ ! "$(whoami)" = "root" ] && echo "need root user..." && exit
+# pid=$(ps ax | grep "conwin-init" | grep -v "grep" | awk '{print $1}')
+# if [ ! "$pid" = "$$" ]; then
+#     [ ! "$pid" = "" ] && echo "conwin-init already running." && exit
+# fi
+
+CONWIN_HOME=/home/fwjie/fs_server/local_test
+export PATH=/bin:/usr/bin:/sbin:/usr/local/bin:/usr/sbin
+export PATH=$CONWIN_HOME/sys/bin:$PATH
+export PATH=$CONWIN_HOME/sys/daemons:$PATH
+
+export JROOT="$CONWIN_HOME"
+export JTMP="/tmp"
+export JRAM="$JROOT/ram"
+export JVAR="$JROOT/var"
+export JSYS="$JROOT/sys"
+export JAPPS="$JROOT/apps"
+export JFLAGS="$JRAM/flags"
+
+
+[ ! -d "$JRAM" ] && mkdir -p $JRAM && mount -t ramfs -o size=10M ramfs $JRAM
+[ ! -d "$JTMP" ] && mkdir -p $JTMP
+[ ! -d "$JVAR" ] && mkdir -p $JVAR
+[ ! -d "$JFLAGS" ] && mkdir -p $JFLAGS
+
+ulimit -n 20000
+
+s=$(cat /etc/profile | awk -F "=" "/JROOT=/{print $2}")
+if [ "$s" = "" ]; then
+    echo "JROOT=$JROOT" >> /etc/profile
+else
+    sed -i "/JROOT=.*/d" /etc/profile
+    echo "JROOT=$JROOT" >> /etc/profile
+fi
+
+fail="false"
+
+sys_file=""
+sys_file="$sys_file $JSYS/etc/cwcdn.conf"
+sys_file="$sys_file $JSYS/etc/cwmake.pub"
+
+for file in $sys_file; do
+    [ ! -f "$file" ] && echo "missing system file: $file" && fail="true"
+done
+
+sys_bin_file=""
+sys_bin_file="$sys_bin_file $JSYS/daemons/conwin-dev-activate"
+sys_bin_file="$sys_bin_file $JSYS/daemons/conwin-internet-monitor"
+sys_bin_file="$sys_bin_file $JSYS/daemons/conwin-net-monitor"
+sys_bin_file="$sys_bin_file $JSYS/daemons/conwin-upgrade"
+sys_bin_file="$sys_bin_file $JSYS/bin/json"
+# sys_bin_file="$sys_bin_file $JSYS/bin/openssl"
+# sys_bin_file="$sys_bin_file $JSYS/bin/upnp"
+
+
+for file in $sys_bin_file; do
+    [ ! -x "$file" ] && echo "missing system file: $file" && fail="true"
+done
+
+[ "$fail" = "true" ] && echo "system fail" && exit
+
+export cwcdn_conf="$JSYS/etc/cwcdn.conf"
+export $(cat $cwcdn_conf)
+
+load_modules
+
+for file in $JSYS/etc/init.d/*; do
+    file=$(realpath $file);
+    [ -x $file ] && . $file
+done
+
+MAC_REAL=$(ifconfig eth0 | awk 'NR==1{print $5}');
+[ "$MAC_REAL" = "" ] && echo "can not get mac for eth0" && exit
+
+# if [ ! "$MAC" = "$MAC_REAL" ]; then
+#     echo "mac changed from $MAC to $MAC_REAL"
+#     echo "clear"  > $BOARD_DEV_LCD
+#     echo "text,0/0/f,MAC=$MAC_REAL" > $BOARD_DEV_LCD 
+#     ret=$(wget -q -O- "$COS/tid/q?k=mac&v=$MAC_REAL")
+#     code=$?
+#     [ ! "$code" = "0" ] && echo "can not get tid, check MAC is ready in cos db" && exit;
+#     eval $ret
+#     MAC=$MAC_REAL
+#     sed -i "s/\(MAC\)=\(.*\)/\1=$MAC/" $cwcdn_conf
+#     sed -i "s/\(TID\)=\(.*\)/\1=$TID/" $cwcdn_conf
+#     sed -i "s/\(MODEL\)=\(.*\)/\1=$MODEL/" $cwcdn_conf
+#     sed -i '/MODULES=/d' $cwcdn_conf
+# fi
+
+chindren=()
+
+function clean_up () {
+    num=${#children[@]}
+    for ((i=0;i<num;i++))
+        {
+            pid=${children[i]}
+            echo "pid=$pid"
+            kill $pid
+        }
+}
+
+trap 'echo "SIGTERM"; clean_up; exit'    SIGTERM
+trap 'echo "SIGINT"; clean_up; exit'    SIGINT
+
+
+for daemon in $JSYS/daemons/*; do
+    if [ -x $daemon ]; then
+        $daemon &
+        children=( "${children[@]}" $! )
+    fi
+done
+
+for app in $JAPPS/*; do
+    echo $app
+    export APP_NAME=$(echo $app | awk -F "/" '{print $NF}')
+    export APP_HOME=$app
+    export PATH=$PATH:$APP_HOME/bin
+    cd $APP_HOME
+    [ ! -f etc/app.conf ] && continue
+    app_main=$(cat etc/app.conf | awk -F "=" '/APP_MAIN/{print $2}')
+    if [ -x $app_main ] ; then
+        $app_main &
+        children=( "${children[@]}" $! )
+    else 
+        if [ -x bin/$app_main ] ; then
+            bin/$app_main &
+            children=( "${children[@]}" $! )
+        fi
+    fi
+done
+
+wait

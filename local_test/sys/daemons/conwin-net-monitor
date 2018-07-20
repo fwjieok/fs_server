@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "conwin-net-service"
+while true; do
+    gw=$(route -n | grep ".*eth0$" | awk '/^0.0.0.0/{print $2}')
+    ping $gw -c 3 > /dev/null
+    code=$?
+    if [ "$code" = "0" ]; then
+        touch $JFLAGS/sys-net-ready
+    else
+        rm $JFLAGS/sys-net-ready
+    fi
+    sleep 30
+done
