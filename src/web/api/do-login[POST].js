@@ -43,7 +43,7 @@ module.exports = function(req, res) {
     //var pass = app.server.config.ipr["web-pass"];
     var pass = "admin";
     if (req.body.username === "admin" && req.body.password === pass) {
-        req.app.server.log(0, "admin",
+        req.app.log(0, "admin",
             req.socket.remoteAddress,
             req.socket.remotePort, "登录");
         console.log("set cookies");

@@ -5,12 +5,12 @@ var fs   = require('fs');
 
 function Db(config) {
     this.config = config;
-    this.config['max-connections'] = 100;
+    this.config['max-connections']   = 100;
     this.config['idleTimeoutMillis'] = 30000;
 }
 
-Db.prototype.query = function (sql, params, callback) {
-    this.db = new pg.Pool(config);
+Db.prototype.init = function () {
+    this.db = new pg.Pool(this.config);
     this.db.on('error', function (err, client) {
         console.error('pg.Pool error', err.message);
     });
@@ -25,13 +25,13 @@ Db.prototype.query = function (sql, params, callback) {
     this.db.connect(function (err, client, done) {
         if (err) {
             done();
-            callback(err);
-        } else {
-            client.query(sql, param, function (err, result) {
-                done();
-                callback(err, result);
-            });
+            return callback(err);
         }
+
+        client.query(sql, params, function (err, result) {
+            done();
+            callback(err, result);
+        });
     });
 };
 

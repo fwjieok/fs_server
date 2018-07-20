@@ -4,7 +4,7 @@
 var exec = require('child_process').exec;
 
 function Network_monitor(server) {
-    this.debug        = true;
+    //this.debug        = true;
     this.server       = server;
     this.net_fail_cnt = 0;
 }

@@ -54,10 +54,10 @@ valid_field["web-port"] = function (value) {
 };
 
 function log(req, msg) {
-    req.app.server.log(0, "admin",
-                       req.socket.remoteAddress,
-                       req.socket.remotePort,
-                       msg);
+    req.app.log(0, "admin",
+                req.socket.remoteAddress,
+                req.socket.remotePort,
+                msg);
 }
 
 function set_system_time(time, req) {
@@ -122,7 +122,7 @@ module.exports = function (req, res) {
         return;
     }
     console.log(config_new);
-    var config_file = req.app.server.config_file;
+    var config_file = req.app.config_file;
     var config_old  = fs.readFileSync(config_file);
     config_old = JSON.parse(config_old);
     var loged  = false;

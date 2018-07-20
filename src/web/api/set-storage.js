@@ -61,7 +61,7 @@ module.exports = function (req, res) {
 			var info = data[key];
 			info.tid = key;
 			
-			var res = await req.app.server.db.add_storage(info);
+			var res = await req.app.db.add_storage(info);
 			console.log("111111", key, res);
 		};
 		
@@ -72,7 +72,7 @@ module.exports = function (req, res) {
 		
 	})();    
 
-    req.app.server.log(0, "admin",
-                       req.socket.remoteAddress,
-                       req.socket.remotePort, "线路参数修改");
+    req.app.log(0, "admin",
+                req.socket.remoteAddress,
+                req.socket.remotePort, "存储参数修改");
 };

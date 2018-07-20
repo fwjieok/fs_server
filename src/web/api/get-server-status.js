@@ -4,7 +4,7 @@
 var fs            = require("fs");
 var path          = require("path");
 var env           = process.env;
-var uptime        = require("../common/uptime.js");
+var uptime        = require("../../common/uptime.js");
 
 var internet_flag = path.join(env.JFLAGS, "sys-internet-ready");
 var network_flag  = path.join(env.JFLAGS, "sys-net-ready");

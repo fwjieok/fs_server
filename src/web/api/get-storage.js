@@ -4,16 +4,17 @@
 module.exports = function(req, res) {
     var sql = 'select hostname, port, enabled, size_total, size_used, size_free from storage order by size_free desc';
 
-    req.app.server.db.query(sql, [], function(err, result) {
+    req.app.db.query(sql, [], function(err, result) {
         if (err) {
             console.log(err);
-            res.status(500).end(JSON.stringify(err));
+            return res.status(500).end(JSON.stringify(err));
         }
 
-        for (var i = 0; i < result.length; i++) {
-
+        /*
+        for (var i = 0; i < result.rows.length; i++) {
             console.log(result.rows[i]);
         }
+         */
 
         //console.log(info);
         var result = {

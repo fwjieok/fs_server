@@ -3,7 +3,7 @@
 
 var util = require("util");
 var request = require("request");
-var Stream_session = require("../../stream-session.js");
+var Stream_session = require("../../../stream-session.js");
 var httpProxy = require('http-proxy');
 var proxy = httpProxy.createProxyServer();
 

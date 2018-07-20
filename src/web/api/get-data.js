@@ -1,5 +1,6 @@
 'use strict';
 /*jslint vars:true*/
+
 var uuid = require("small-uuid");
 
 module.exports = function (req, res) {

@@ -1,10 +1,15 @@
 'use strict';
 /*jslint vars:true*/
+
+var env = process.env;
+var path = require("path");
+
 module.exports = function (req, res) {
     res.end("{}");
     return;
     var exec = require('child_process').exec, child;
-    var file = req.app.server.SYS_LOG;
+    var file = path.join(env.JVAR, "system.log");
+
     child = exec('tail -n 100 ' + file, function (error, stdout, stderr) {
         // console.log('stdout: ' + stdout);
         // console.log('stderr: ' + stderr);
@@ -14,7 +19,7 @@ module.exports = function (req, res) {
         } else {
             var result = stdout.split("\n");
             result.reverse();
-            res.end(JSON.stringify(result));
+            res.send(result);
         }
     });
 };

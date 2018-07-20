@@ -27,7 +27,7 @@ function copy_fields(fieldsList, config) {
 }
 
 module.exports = function (req, res) {
-    var result = copy_fields(fields, req.app.server.config);
+    var result = copy_fields(fields, req.app.config);
     result["system-time"] = "";
     res.send(result);
 };

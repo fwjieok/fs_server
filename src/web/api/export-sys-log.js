@@ -1,10 +1,13 @@
 'use strict';
 /*jslint vars:true, stupid:true*/
 
-var fs = require('fs');
+var fs       = require('fs');
+var env      = process.env;
+var path     = require("path");
+
+var log_file = path.join(env.JVAR, "system.log");
 
 module.exports = function (req, res) {
-    var log_file   = req.app.server.SYS_LOG;
     var len        = fs.statSync(log_file).size;
     var filename   = process.env.TID + '-' + (new Date()).format() + '.csv';
     var readStream = fs.createReadStream(log_file);

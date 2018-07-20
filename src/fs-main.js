@@ -4,8 +4,10 @@
 var fs         = require('fs');
 var path       = require('path');
 var env        = process.env;
+var global     = require("./common/global.js");
 var Db         = require("./common/db-pg.js");
-var Log        = require("./common/log.js");
+var log        = require("./common/log.js");
+var Net_monitor= require("./common/network_monitor.js");
 var Fsc_server = require("./fsc/fsc-server.js");
 var Fs_server  = require("./fs/fs-server.js");
 var web        = require("./web/fs-web.js");
@@ -22,19 +24,30 @@ if (missed.length > 0) {
 }
 
 var config_file = env.JSYS + "/etc/config.json";
-var config_file_default = env.APP_HOME + "/etc/config.default.json";
 
 var config = {
-    cwcdn: {},
-    sys: {},
-    database: {},
-    modules: []
+    cwcdn    : {},
+    sys      : {},
+    database : {},
+    modules  : []
 };
 
-process.on('uncaughtException', function () {
-    console.log(`Caught exception: ${err}`);
+// process.on('uncaughtException', (err) => {
+//     var err_file = env.JVAR + "/process.err";
+//     console.log(`Caught exception: ${err}`);
+//     console.log(err.stack);
+
+//     fs.writeFileSync(err_file, `exception: ${err}\n`);
+//     process.exit(-2);
+// });
+
+process.on('uncaughtException', function (err) {
+    var err_file = env.JVAR + "/process.err";
     console.log(err.stack);
-    process.exit(-2);
+
+    console.log(typeof fs.writeFile);
+  //fs.writeFileSync(err_file, JSON.stringify(err));
+    //process.exit(-2);
 });
 
 process.on("exit", function() {
@@ -78,21 +91,16 @@ function load_config() {
         config.modules.push(model_name);
     }
 
-    try {
-        var ipr = fs.readFileSync(config_file);
-        config.ipr = JSON.parse(ipr);
-        return true;
-    } catch (error) {
-        console.log("Missing config file:", config_file);
-        console.log(error);
-    }
+    console.log("modules = ", config.modules);
 
     try {
-        var ipr = fs.readFileSync(config_file_default);
-        config.ipr = JSON.parse(ipr);
-        fs.writeFileSync(config_file, JSON.stringify(config.ipr, null, 4));
+        var str         = fs.readFileSync(config_file);
+        var json        = JSON.parse(str);
+        config.sys      = json.sys;
+        config.database = json.database;
+        return true;
     } catch (error) {
-        console.log("Can not restore config file to default");
+        console.log("load config file error:");
         console.log(error);
     }
 
@@ -100,10 +108,6 @@ function load_config() {
 };
 
 if (!load_config()) {
-    critical_error();
-}
-
-if (!load_cert_files()) {
     critical_error();
 }
 
@@ -118,18 +122,22 @@ db.init();
 
 var fsc = new Fsc_server(config);
 fsc.log = log.bind(fsc);
+fsc.db  = db;
 fsc.start();
 
 var fs = new Fs_server(config);
 fs.log = log.bind(this);
+fs.db  = db;
 fs.start();
 
-web.config = config;
-web.log    = log.bind(web);
+web.config_file = config_file;
+web.config      = config;
+web.log         = log.bind(web);
+web.db          = db;
 
 web.listen(config.sys['web-port'], function() {
     console.log("web listen on 8000");
 });
 
-var net_monitor = new Network_monitor(web);
+var net_monitor = new Net_monitor(web);
 net_monitor.start();

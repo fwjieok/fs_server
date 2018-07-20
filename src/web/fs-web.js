@@ -24,17 +24,17 @@ web.engine('html', hbs.engine);
 web.set('view engine', 'html');
 web.set('views', path.join(__dirname, 'views'));
 
-web.use(bodyParser.json()); //application/json
+web.use(bodyParser.json()); //for parse application/json
 web.use(bodyParser.urlencoded({ extended: true })); //application/x-www-form-urlencoded
 web.use(cookieParser());
-web.use(favicon(path.join(__dirname, './public/images/jingyun.png')));
+web.use(favicon(path.join(__dirname, './public/images/logo.jpg')));
 web.use(express.static(path.join(__dirname, './public')));
 
 web.sessions = {};
 web.SESSION_ALIVE_TIME = 1000 * 60 * 30; //  3 minutes
 
 web.all("*", function (req, res, next) {
-    if (req.query.key === req.app.server.config.sys["api-key"]) {
+    if (req.query.key === req.app.config.sys["api-key"]) {
         next();
     } else if (req.query.sid) {
         next();
@@ -78,7 +78,7 @@ web.get("/:view", function(req, res, next) {
             return res.render(view, { layout: null });
         }
         res.render(view, {
-            title           : req.app.server.config.cwcdn.MODEL,
+            title           : req.app.config.cwcdn.MODEL,
             show_save_btn   : no_save_btn.indexOf(view) < 0,
             show_export_btn : show_export_btn.indexOf(view) >= 0
         });
