@@ -181,7 +181,6 @@ Uploader.prototype.block_end = function(block) {
 Uploader.prototype.on_finished = function(err, fields, files) {
     if (!this.req_finished) {
 
-
         /*
 
         this.block_writeStream.end();
