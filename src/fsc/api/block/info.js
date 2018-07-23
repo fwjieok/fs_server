@@ -7,7 +7,7 @@ module.exports = function(req, res) {
         res.status(403).end();
         return;
     }
-
+    
     var format = req.headers.format; //picture/audio/video
     if (!format) {
         res.status(400).end("block type is not found");
@@ -28,17 +28,17 @@ function Picture_block_query(req, res) {
     this.res = res;
 
     var streamid = req.query.streamid;
-    var from = req.query.from;
-    var to = req.query.to;
+    var from	 = req.query.from;
+    var to	 = req.query.to;
 
     var sql = "select b.storage, s.protocol, s.hostname, s.port, b.bid, b.frames, b.sample_rate, b.t_start, b.t_end, b.meta " +
         "from block b " +
         "join storage s on b.storage = s.tid  " +
-        "where streamid = $1 AND t_start > $2 AND t_start < $3 ORDER BY t_start ASC LIMIT 240 OFFSET 0";
+        "where streamid = $1 AND t_start >= $2 AND t_start <= $3 ORDER BY t_start ASC LIMIT 240 OFFSET 0";
     var params = [streamid, parseInt(from), parseInt(to)];
 
-    console.log(sql);
-    console.log(params);
+    //console.log(sql);
+    //console.log(params);
 
     req.app.server.db.query(sql, params, function(err, result) {
         if (err) {

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 [ ! "$(whoami)" = "root" ] && echo "need root user..." && exit
 # pid=$(ps ax | grep "conwin-init" | grep -v "grep" | awk '{print $1}')
 # if [ ! "$pid" = "$$" ]; then

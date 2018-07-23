@@ -2,7 +2,7 @@
     "sys": {
         "storage-number"        : 1,
         "work-mode"             : "fsc-fs",
-        "fsc-host"              : null,
+        "fsc-host"              : "127.0.0.1",
         "fsc-port"              : 7000,
         "beep-monitor-fsc"      : false,
         "beep-monitor-net"      : true,

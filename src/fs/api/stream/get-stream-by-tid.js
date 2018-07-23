@@ -5,22 +5,13 @@ var httpProxy = require('http-proxy');
 
 
 module.exports = function(req, res) {
-
-    var fsc_host = "127.0.0.1";
-    var fsc_port = 7000;
-
-    var work_mode = config['work-mode'];
-    if (work_mode === 'fsc-fs') {
-
-
-    } else if (work_mode === 'fs') {
-        fsc_host = config['fsc-host'];
-        fsc_port = config['fsc-port'];
-    }
+    var protocol = req.app.server.protocol;
+    var fsc_host = req.app.server.fsc_host;
+    var fsc_port = req.app.server.fsc_port;
 
     var proxy = httpProxy.createProxyServer();
 
-    var target = req.app.server.protocol + '://' + host + ':' + port;
+    var target = protocol + '://' + fsc_host + ':' + fsc_port;
     console.log("---- fs proxy to :", target);
     var option = {
         target: target
@@ -33,6 +24,6 @@ module.exports = function(req, res) {
 
     proxy.web(req, res, option);
     proxy.on('proxyReq', function(proxyReq, req, res, options) {
-        proxyReq.setHeader('Host', host);
+        proxyReq.setHeader('Host', fsc_port);
     });
 };

@@ -1,27 +1,55 @@
 'use strict';
 /*jslint vars : true*/
 
+var fs = require('fs');
 var util = require('util');
 var path = require('path');
 var express = require('express');
-var bodyParser   = require('body-parser');
+var bodyParser = require('body-parser');
 var API_man = require("../common/api-man.js");
 
-function Fs_server() {
+var data_root = process.env.HOME + "/.fs/root";
+
+function Fs_server(config) {
+    this.config = config;
     this.web = null;
 
     this.stream_sessions = {};
+
+    this.data_root = data_root;
+    this.tid = this.config.modules["CN0842"];
+
+    this.work_mode = "fsc-fs";
     this.protocol = "http";
+    this.fsc_host = "127.0.0.1";
+    this.fsc_port = 7000;
 }
 
-Fs_server.prototype.start = function() {
+Fs_server.prototype.check_stream_session_idle = function() {
+    for (var streamid in this.stream_sessions) {
+        var session = this.stream_sessions[streamid];
+
+        var rss_count = 0;
+        for (var rssid in session.read_sessions) {
+            rss_count++;
+        }
+        //该session读端或写端还存在
+        if (rss_count > 0 || session.write_session) {
+            continue;
+        }
+
+        delete this.stream_sessions[streamid];
+    }
+}
+
+Fs_server.prototype.api_start = function() {
     this.web = express();
 
     var api_man = new API_man(this.web, __dirname + "/api", "/");
     api_man.mount();
 
-    this.web.use(bodyParser.json());
-    this.web.use(bodyParser.urlencoded({ extended: false }));
+    this.web.use(bodyParser.json()); //for parse application/json
+    this.web.use(bodyParser.urlencoded({ extended: true }));
     this.web.use(express.static(path.join(__dirname, './public')));
     this.web.server = this;
     this.web.all("*", function(req, res, next) {
@@ -33,8 +61,45 @@ Fs_server.prototype.start = function() {
     });
 
     this.web.listen(7001, function() {
-        console.log("fs server listen on 7001");
+        console.log("fs  listen on 7001");
     });
+}
+
+Fs_server.prototype.init_data_root = function() {
+    var execSync = require("child_process").execSync;
+
+    try {
+        fs.accessSync(this.data_root, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK);
+        return true;
+    } catch (err) {
+        var cmd = "mkdir -p " + this.data_root;
+        execSync(cmd, function(err, stdout, stderr) {
+            if (err) {
+                console.log(err);
+                return false;
+            }
+
+            return true;
+        });
+    }
+}
+
+Fs_server.prototype.start = function() {
+    if (!this.init_data_root()) {
+        console.log("fs init data root error, data root: ", this.data_root);
+        return;
+    }
+
+    this.work_mode = this.config.sys["work-mode"];
+    //存储扩展模式时需要设置fsc
+    if (this.work_mode === "fs") {
+        this.fsc_host = this.config.sys["fsc-host"];
+        this.fsc_port = this.config.sys["fsc-port"];
+    }
+
+    this.api_start();
+
+    setInterval(this.check_stream_session_idle.bind(this), 5000);
 };
 
 module.exports = Fs_server;

@@ -1,11 +1,12 @@
 'use strict';
 /*jslint vars:true*/
 var fs = require('fs');
+
 function invalid_line_settings(config) {
     var lines = config["tcp-lines"];
     if (!lines) { return "找不到线路设置"; }
 
-    var ports   = [];
+    var ports = [];
     for (var key in lines) {
         if (!lines.hasOwnProperty(key)) { continue; }
         var line = lines[key];
@@ -43,7 +44,7 @@ function config_changed(conf_new, conf_old) {
     return false;
 }
 
-module.exports = function (req, res) {
+module.exports = function(req, res) {
     var data = req.query.data;
     if (!data) {
         res.status(400).end();
@@ -55,24 +56,24 @@ module.exports = function (req, res) {
         res.status(400).end();
         return;
     }
-	
-	(async () => {	  
-		for (var key in data) {
-			var info = data[key];
-			info.tid = key;
-			
-			var res = await req.app.db.add_storage(info);
-			console.log("111111", key, res);
-		};
-		
-		console.log("2222");
 
-		res.end('{result: "OK"}');
+    (async() => {
+        for (var key in data) {
+            var info = data[key];
+            info.tid = key;
 
-		
-	})();    
+            var res = await req.app.db.add_storage(info);
+            console.log("111111", key, res);
+        };
+
+        console.log("2222");
+
+        res.end('{result: "OK"}');
+
+
+    })();
 
     req.app.log(0, "admin",
-                req.socket.remoteAddress,
-                req.socket.remotePort, "存储参数修改");
+        req.socket.remoteAddress,
+        req.socket.remotePort, "存储参数修改");
 };

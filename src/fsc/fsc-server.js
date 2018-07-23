@@ -29,7 +29,7 @@ Fsc_server.prototype.start_web_api = function () {
     });
 
     this.web.listen(7000, function () {
-        console.log("web listen on 7000");
+        console.log("fsc listen on 7000");
     });
 }
 

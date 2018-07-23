@@ -1,16 +1,16 @@
 'use strict';
 /*jslint vars : true*/
 
-var fs         = require('fs');
-var path       = require('path');
-var env        = process.env;
-var global     = require("./common/global.js");
-var Db         = require("./common/db-pg.js");
-var log        = require("./common/log.js");
-var Net_monitor= require("./common/network_monitor.js");
-var Fsc_server = require("./fsc/fsc-server.js");
-var Fs_server  = require("./fs/fs-server.js");
-var web        = require("./web/fs-web.js");
+var fs		= require('fs');
+var path	= require('path');
+var env		= process.env;
+var global	= require("./common/global.js");
+var Db		= require("./common/db-pg.js");
+var log		= require("./common/log.js");
+var Net_monitor = require("./common/network_monitor.js");
+var Fsc_server	= require("./fsc/fsc-server.js");
+var Fs_server	= require("./fs/fs-server.js");
+var web		= require("./web/fs-web.js");
 
 var envs = ['JSYS', 'APP_HOME', 'cwcdn_conf', 'JRAM', 'JVAR'];
 
@@ -27,9 +27,9 @@ var config_file = env.JSYS + "/etc/config.json";
 
 var config = {
     cwcdn    : {},
-    sys      : {},
+    sys	     : {},
     database : {},
-    modules  : []
+    modules  : {}
 };
 
 // process.on('uncaughtException', (err) => {
@@ -41,12 +41,12 @@ var config = {
 //     process.exit(-2);
 // });
 
-process.on('uncaughtException', function (err) {
+process.on('uncaughtException', function(err) {
     var err_file = env.JVAR + "/process.err";
     console.log(err.stack);
 
     console.log(typeof fs.writeFile);
-  //fs.writeFileSync(err_file, JSON.stringify(err));
+    //fs.writeFileSync(err_file, JSON.stringify(err));
     //process.exit(-2);
 });
 
@@ -87,16 +87,17 @@ function load_config() {
     for (var i = 0; i < flags.length; i++) {
         var name = flags[i].split("_");
         if (name.length < 3 || name[0] !== "module") { continue; };
-        var model_name = name[2].toUpperCase();
-        config.modules.push(model_name);
+        var module_name = name[2].toUpperCase();
+	var module_tid  = name[1];
+	config.modules[module_name] = module_tid;
     }
 
     console.log("modules = ", config.modules);
 
     try {
-        var str         = fs.readFileSync(config_file);
-        var json        = JSON.parse(str);
-        config.sys      = json.sys;
+        var str = fs.readFileSync(config_file);
+        var json = JSON.parse(str);
+        config.sys = json.sys;
         config.database = json.database;
         return true;
     } catch (error) {
@@ -122,18 +123,18 @@ db.init();
 
 var fsc = new Fsc_server(config);
 fsc.log = log.bind(fsc);
-fsc.db  = db;
+fsc.db = db;
 fsc.start();
 
 var fs = new Fs_server(config);
 fs.log = log.bind(this);
-fs.db  = db;
+fs.db = db;
 fs.start();
 
 web.config_file = config_file;
-web.config      = config;
-web.log         = log.bind(web);
-web.db          = db;
+web.config = config;
+web.log = log.bind(web);
+web.db = db;
 
 web.listen(config.sys['web-port'], function() {
     console.log("web listen on 8000");

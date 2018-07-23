@@ -1,33 +1,40 @@
 'use strict';
 /*jslint vars:true*/
 
-var uuid = require("small-uuid");
+var httpProxy = require('http-proxy');
 
 module.exports = function (req, res) {
-    var type = req.query.type;
-    var page = req.query.page;
-    var limit = req.query.limit;
+    var config   = req.app.config;
+    var fsc_host = config.sys['fsc-host'];
+    var fsc_port = config.sys['fsc-port'];
+    var self_tid = req.app.config.cwcdn.TID;
 
-    console.log(req.query);
+    var proxy = httpProxy.createProxyServer();
+    var target = 'http://' + fsc_host + ':' + fsc_port;
+    console.log("---- web proxy to :", target);
+    var option = {
+        target: target
+    };
 
-    var result = {"code":0,"msg":"","count":1000,"data":[]};
+    proxy.web(req, res, option);
 
-    for (var i = (page - 1); i < page*limit; i ++) {
-        result.data.push({
-          id: i,
-          fname: i + "",
-          size: i + 1000,
-          type: "text/jpeg",
-          fid: uuid.create(),
-          hash: uuid.create(),
-          uploader: "COWN-XXX-XX-XXX",
-          download_count: i * 123,
-          t_upload: new Date(),
-          t_expire: new Date()
-        });
-    }
-      
-    res.send(result);
+    proxy.on('error', function(err, req, res) {
+        console.log("--- proxy error ------");
+	console.log(err);
+        res.status(500).end();
+    });
 
+    proxy.on('proxyReq', function(proxyReq, req, res, options) {
+        proxyReq.setHeader('Host', fsc_host);
+	proxyReq.setHeader('TID',  self_tid);
+
+	var query = "";
+	for (var key in req.query) {
+	    query += key + "=" + req.query[key] + "&";
+	}
+	query = query.substring(0, query.length - 1);
+	
+	proxyReq.path = "/block/info-web?" + query;
+    });
 };
 

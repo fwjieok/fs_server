@@ -1,121 +1,116 @@
-<div id="body-container">
-  <div id="body-content">
-    {{> nav}}
-    <section class="page container">
-      <form class="form-horizontal">
+<section class="page container">
+    <form class="form-horizontal">
         <div class="container">
-          <div class="row">
-            <div id="server-settings-row" class="span12">
-              <fieldset>
-                <legend>存储设备管理</legend>
-                <br/>
-                <div class="box  pattern-sandstone span14">
-                  <div class="box-header">
-                    <i class="icon-table"></i>
-                    <h5>存储设备列表</h5>
-                  </div>
-                  <div class="box-content box-table">
-                    <table class="table table-striped table-hover table-bordered tablesorter">
-                      <thead>
-                        <tr>
-                          <th class="center span1">序号</th>
-                          <th class="center span2">TID</th>
-                          <th class="center span2">名称</th>
-                          <th class="center span2">主机名或IP</th>
-                          <th class="center span2">端口</th>
-                          <th class="center span2">存储容量</th>
-                          <th class="center span2">是否启用</th>
-                          <th class="center span3">操作</th>
-                        </tr>
-                      </thead>
-                      <tbody id="storage-list">
-                      </tbody>
-                    </table>
-                  </div>
+            <div class="row">
+                <div id="server-settings-row" class="span12">
+                    <fieldset>
+                        <legend>存储设备管理</legend>
+                        <br/>
+                        <div class="box  pattern-sandstone span14">
+                            <div class="box-header">
+                                <i class="icon-table"></i>
+                                <h5>存储设备列表</h5>
+                            </div>
+                            <div class="box-content box-table">
+                                <table class="table table-striped table-hover table-bordered tablesorter">
+                                    <thead>
+                                        <tr>
+                                            <th class="center span1">序号</th>
+                                            <th class="center span2">TID</th>
+                                            <th class="center span2">主机名或IP</th>
+                                            <th class="center span2">端口</th>
+                                            <th class="center span2">存储容量(GB)</th>
+                                            <th class="center span2">是否启用</th>
+                                            <th class="center span3">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="storage-list">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-              </fieldset>
-            </div>
-            <div class="span12 ">
-              <fieldset>
-                <legend>增加/修改存储设备</legend>
-                <br/>
+                <div class="span12 ">
+                    <fieldset>
+                        <legend>增加/修改存储设备</legend>
+                        <br/>
 
-                <div class="control-group ">
-                  <label class="control-label">TID </label>
-                  <div class="controls ">
-                    <input id="new-tid" class="span3" type="text" autocomplete="false" />
-                  </div>
-                </div>
+                        <div class="control-group ">
+                            <label class="control-label">存储设备编号 </label>
+                            <div class="controls ">
+                                <input id="new-number" class="span3" type="number" autocomplete="false" />
+                            </div>
+                        </div>
 
-                <div class="control-group ">
-                  <label class="control-label">名称 </label>
-                  <div class="controls ">
-                    <input id="new-name" class="span3" type="text" autocomplete="false" />
-                  </div>
-                </div>
+                        <div class="control-group ">
+                            <label class="control-label">TID </label>
+                            <div class="controls ">
+                                <input id="new-tid" class="span3" type="text" autocomplete="false" />
+                            </div>
+                        </div>
 
-                <div class="control-group ">
-                  <label class="control-label">主机名或IP地址 </label>
-                  <div class="controls ">
-                    <input id="new-hostname" class="span3" type="text" autocomplete="false" />
-                  </div>
-                </div>
+                        <div class="control-group ">
+                            <label class="control-label">主机名或IP地址 </label>
+                            <div class="controls ">
+                                <input id="new-hostname" class="span3" type="text" autocomplete="false" />
+                            </div>
+                        </div>
 
-                <div class="control-group ">
-                  <label class="control-label">端口(5001-9999) </label>
-                  <div class="controls ">
-                    <input id="new-port" class="span3" type="number" autocomplete="false" />
-                  </div>
-                </div>
+                        <div class="control-group ">
+                            <label class="control-label">端口(7001-9999) </label>
+                            <div class="controls ">
+                                <input id="new-port" class="span3" type="number" autocomplete="false" />
+                            </div>
+                        </div>
 
-                <div class="control-group ">
-                  <label class="control-label">存储容量 </label>
-                  <div class="controls ">
-                    <input id="new-size-total" class="span3" type="number" autocomplete="false" />&nbsp;(GB)
-                  </div>
-                </div>
+                        <div class="control-group ">
+                            <label class="control-label">存储容量 </label>
+                            <div class="controls ">
+                                <input id="new-size-total" class="span3" type="number" autocomplete="false" />&nbsp;(GB)
+                            </div>
+                        </div>
 
-                <div class="control-group ">
-                  <div class="controls ">
-                    <button id="btn-add-child " class="center btn " name="add-child ">
+                        <div class="control-group ">
+                            <div class="controls ">
+                                <button id="btn-add-child " class="center btn " name="add-child ">
                       <span class="icon-plus "></span>增加存储设备
                     </button>
-                    <button id="btn-edit-child " class="center btn " name="add-child ">
+                                <button id="btn-edit-child " class="center btn " name="add-child ">
                       <span class="icon-edit "></span>更新设备参数
                     </button>
-                  </div>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-              </fieldset>
             </div>
-          </div>
         </div>
-      </form>
-    </section>
-  </div>
-</div>
-
+    </form>
+</section>
 
 {{#section 'js'}}
 <script src="/js-plugins/bootstrap/bootstrap-switch.js " type="text/javascript "></script>
 <script id="hbs-storage-list" type="text/x-handlebars-template">
-  \{{#each this}}
-  <tr id="row-{{@index}}">
-    <td id="col-index">\{{@index}}</td>
-    <td id="col-tid" class="center">\{{name}}</td>
-    <td id="col-name" class="center">\{{name}}</td>
-    <td id="col-hostname" class="center">\{{hostname}}</td>
-    <td id="col-port" class="center">\{{port}}</td>
-    <td id="col-size-total" class="center">\{{size_total}}</td>
+    \{{#each this}}
+    <tr id="row-{{@index}}">
+        <td id="col-index">\{{add_index @index}}</td>
+        <td id="col-tid" class="center">\{{tid}}</td>
+        <td id="col-hostname" class="center">\{{hostname}}</td>
+        <td id="col-port" class="center">\{{port}}</td>
+        <td id="col-size-total" class="center">\{{size size_total}}</td>
 
-    <td id="col-enabled" class="center">
-      <input type="checkbox" class="switch checked=" true ">                              
-    </td>
-    <td id="col-oper "> 
-      <button class="btn btn-del icon-remove "> </button >
-      <button class="btn btn-edit icon-edit "> </button >
-    </td>
-  </tr>
-  \{{/each}}
+        <td id="col-enabled" class="center">
+            \{{#if_eq enabled true}}
+            <input type="checkbox" class="switch" checked/> \{{else}}
+            <input type="checkbox" class="switch" /> \{{/if_eq}}
+
+        </td>
+        <td id=" col-oper ">
+            <button class="btn btn-del icon-remove "> </button >
+            <button class="btn btn-edit icon-edit "> </button >
+        </td>
+    </tr>
+    \{{/each}}
 </script>
 
 <script type="text/javascript ">
@@ -127,6 +122,23 @@
          //这里是要执行的代码
          event.preventDefault();
      });
+
+    //索引Helper: index = index + 1;
+    Handlebars.registerHelper("add_index", function(index) {
+        return (index + 1);
+    });
+
+    Handlebars.registerHelper("size", function(size_total) {
+        return (size_total / 1024 / 1024 / 1024).toFixed(3);
+    });
+
+    Handlebars.registerHelper("if_eq", function(value1, value2, options) {
+        if (value1 === value2) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    });
 
      var settings = {};
      $("#submit-confirm-button ").click(function() {
@@ -169,10 +181,10 @@
      };
 
      function on_child_del() {
-         var name = $(this).parent().parent().find("td ").eq(2).text();
+         var name = $(this).parent().parent().find("td").eq(2).text();
          if (confirm("确定要删除: " + name + "吗? ")) {
              delete settings[key];
-             $("#row- " + key).remove();
+             $("#row-" + key).remove();
              on_data_changed();
          };
 
@@ -183,12 +195,11 @@
          var ele = $(this).parent().parent().find("td ");
          var key = $(this).data().key;
          var line = settings[key];
-         $("#new-number ").val(key);
-         $("#new-name ").val(ele.eq(1).text);
-         $("#new-hostname ").val(ele.eq(1).text());
-         $("#new-port ").val(line.port);
-         $("#new-protocol ").val(line.protocol);
-         $("#new-size-total ").val(line.size_total);
+         $("#new-number").val(key);
+         $("#new-tid").val(ele.eq(1).text);
+         $("#new-hostname").val(ele.eq(1).text());
+         $("#new-port").val(line.port);
+         $("#new-size-total").val(line.size_total);
          return false;
      }
 
@@ -197,7 +208,7 @@
          var key = data.key;
          var line = settings[key];
          var new_value;
-         if ($(this).attr("checked ")) {
+         if ($(this).attr("checked")) {
              new_value = true;
          } else {
              new_value = false;
@@ -223,20 +234,20 @@
      }
 
      function add_new_child() {
-         var key = $("#new-number ").val().toString();
-         var name = $("#new-name ").val();
-         var hostname = $("#new-hostname ").val();
-         var port = $("#new-port ").val().toString();
-         var protocol = $("#new-protocol ").val();
-         var size_total = $("#new-size-size ").val();
+         var key = $("#new-number").val().toString();
+         var name = $("#new-name").val();
+         var hostname = $("#new-hostname").val();
+         var port = $("#new-port").val().toString();
+         var protocol = $("#new-protocol").val();
+         var size_total = $("#new-size-size").val();
          if (!/^[0-9]$/.test(key)) {
              alert(key + ": 线路号格式错误. ");
-             $("#new-liine ").focus();
+             $("#new-liine").focus();
              return false;
          }
          if (!/^[0-9]{4}$/.test(port)) {
              alert("端口号格式错误: " + port);
-             $("#new-port ").focus();
+             $("#new-port").focus();
              return false;
          }
          if (!is_valid_ip(hostname)) {
@@ -285,37 +296,36 @@
      }
 
      function edit_child() {
-         var key = $("#new-number ").val().toString();
+         var key = $("#new-number").val().toString();
          if (!settings[key]) {
-             alert(key + "线路不存在. ");
-             $("#new-line ").focus();
+             alert(key + "设备不存在. ");
+             $("#new-number").focus();
              return false;
          }
-         var name = $("#new-name ").val();
-         var hostname = $("#new-hostname ").val();
-         var port = $("#new-port ").val().toString();
-         var protocol = $("#new-protocol ").val();
-         var size_total = $("#new-size-total ").val();
-         if (!/^[0-9]$/.test(key)) {
-             alert(key + ": 线路号格式错误. ");
-             $("#new-liine ").focus();
+         var name = $("#new-tid").val();
+         var hostname = $("#new-hostname").val();
+         var port = $("#new-port").val().toString();
+         var size_total = $("#new-size-total").val();
+         if (!/^[0-102400]$/.test(key)) {
+             alert(key + ": 设备编号号格式错误. ");
+             $("#new-number").focus();
              return false;
          }
          if (!/^[0-9]{4}$/.test(port)) {
              alert("端口号格式错误: " + port);
-             $("#new-port ").focus();
+             $("#new-port").focus();
              return false;
          }
          if (!is_valid_ip(hostname)) {
              alert("主机名或IP格式错误: " + hostname);
-             $("#new-hostname ").focus();
+             $("#new-hostname").focus();
              return false;
          }
 
          port = parseInt(port, 10);
-         if (port < 2000 || port > 10000) {
+         if (port < 7000 || port > 10000) {
              alert(port + ": 端口号超出允许的范围 ");
-             $("#new-port ").focus();
+             $("#new-port").focus();
              return false;
          }
          for (var line in settings) {
@@ -327,24 +337,19 @@
              };
              if (settings[line].port === port) {
                  alert(port + ": 端口号重复 ");
-                 $("#new-port ").focus();
+                 $("#new-port").focus();
                  return false;
              }
          }
 
-         if (protocol !== 'http' && protocol !== 'https') {
-             alert(protocol + ": 未知的协议类型 ");
-             $("#new-protocol ").focus();
-             return false;
-         }
          on_data_changed();
 
          settings[key] = {
-             enabled: true,
-             name: name,
+             number: number,
+             tid: tid,
              hostname: hostname,
              port: port,
-             protocol: protocol,
+             enabled: true,
              size_total: size_total
          }
          update_child(key);
@@ -355,7 +360,7 @@
          if (!line) {
              return;
          };
-         $("#row- " + key + " #col-name ").text(line.name);
+         $("#row- " + key + " #col-tid ").text(line.name);
          $("#row- " + key + " #col-hostname ").text(line.hostname);
          $("#row- " + key + " #col-port ").text(line.port);
          $("#row- " + key + " #col-protocol ").text(line.protocol);
@@ -378,4 +383,4 @@
      });
  });
 </script>
-{{/section}}
+{{/section}},

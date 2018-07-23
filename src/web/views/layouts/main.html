@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-  {{> header}}
-  <body>
-    {{> page_header}}
+{{> header}}
 
-    {{{body}}}
-    
+<body>
+    {{> page_header}}
+    <div id="body-container">
+        <div id="body-content">
+            {{> nav}} {{{body}}}
+        </div>
+    </div>
     {{> footer}}
 
+    <script type="text/javascript" src="/js-plugins/jquery/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="/js-plugins/handlebars/handlebars-v4.0.11.js"></script>
 
     {{{_sections.js}}}
-    
-  </body>
+
+</body>
+
 </html>
