@@ -15,11 +15,15 @@ function Writer(req, res) {
     this.req = req;
     this.res = res;
 
-    var flag	 = req.headers.flag;
+    //var flag	 = req.headers.flag;
     var streamid = req.headers.streamid;
     
-    if (!streamid || flag !== "1") {
-        return res.status(404).end("flag or streamid not valid");
+    // if (!streamid || flag !== "1") {
+    //     return res.status(404).end("flag or streamid not valid");
+    // }
+
+    if (!streamid) {
+        return res.status(404).end("streamid not valid");
     }
 
     var protocol = req.app.server.protocol;

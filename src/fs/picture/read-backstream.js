@@ -18,14 +18,23 @@ function Reader_backstream(req, res) {
 
     this.streamid = req.query.streamid;
     this.from = req.query.from;
-    this.to = -1;
-    if (req.query.to) {
-        this.to = req.query.to;
-    }
-
     if (!this.from) {
         return res.status(400).end("from not valid");
     }
+
+    console.log("--- from: ", req.query.from);
+    console.log("--- from: ", req.query.to);
+
+    console.log("--------------------------------- ");
+
+    this.from = (new Date(this.from)).valueOf(); //转换为时间戳
+    this.to = this.from + 10 * 1000; //默认返回前后10秒
+    if (req.query.to) {
+        this.to = (new Date(req.query.to)).valueOf();
+    }
+
+    console.log("--- from: ", this.from);
+    console.log("--- from: ", this.to);
 
     this.self_tid = this.req.app.server.tid;
 
@@ -35,6 +44,7 @@ function Reader_backstream(req, res) {
     this.res.on('close', this.on_response_finished.bind(this));
     this.res.on('finish', this.on_response_finished.bind(this));
 
+    this.timeout = 10;
     this.block_index = 0;
     this.block_list = [];
 
@@ -77,7 +87,13 @@ Reader_backstream.prototype.request_fsc_block_info = function() {
         if (res.statusCode !== 200) {
             console.log("---- request fsc block info fail ------");
             console.log(res.statusCode, body);
-            return this.res.status(res.statusCode).end(body);
+            if (res.statusCode === 404 && this.timeout > 0) {
+                setTimeout(this.request_fsc_block_info.bind(this), 500);
+                this.timeout--;
+            } else {
+                this.res.status(res.statusCode).end(body);
+            }
+            return;
         }
 
         this.block_list = body;
@@ -92,6 +108,7 @@ Reader_backstream.prototype.request_fsc_block_info = function() {
 
 Reader_backstream.prototype.process_block_data = function() {
     if (this.block_index >= this.block_list.length) {
+        //if (this.block_index >= 80) {
         this.res.end('\r\n--' + BOUNDARY + '--');
         console.log("----- all data itme done -----");
         return;
@@ -112,7 +129,7 @@ Reader_backstream.prototype.process_block_data = function() {
             }
 
             this.block_index++;
-            setTimeout(this.process_block_data.bind(this), 250);
+            setTimeout(this.process_block_data.bind(this), 125);
         }.bind(this));
 
     } else {

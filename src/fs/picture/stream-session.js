@@ -109,12 +109,8 @@ Session.prototype.on_write_close = function() {
     }
     */
 
-    var protocol = req.app.server.protocol;
-    var fsc_host = req.app.server.fsc_host;
-    var fsc_port = req.app.server.fsc_port;
-
     var url = "http://%s:%d/stream/stream-session?action=%s&streamid=%s";
-    url = util.format(url, fsc_host, fsc_port, "remove", this.streamid);
+    url = util.format(url, this.server.fsc_host, this.server.fsc_port, "remove", this.streamid);
 
     console.log(url);
     var option = {
