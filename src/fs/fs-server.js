@@ -67,17 +67,19 @@ Fs_server.prototype.api_start = function() {
 
 Fs_server.prototype.init_data_root = function() {
     var execSync = require("child_process").execSync;
-
+    var flag = fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK;
     try {
-        fs.accessSync(this.data_root, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK);
+        fs.accessSync(this.data_root, flag);
+        console.log("data root dir ok, dir:", this.data_root);
         return true;
     } catch (err) {
         var cmd = "mkdir -p " + this.data_root;
         execSync(cmd, function(err, stdout, stderr) {
             if (err) {
-                console.log(err);
+                console.log("mkdir data root error, error:", err);
                 return false;
             }
+            console.log("mkdir data root ok, dir:", this.data_root);
 
             return true;
         });
@@ -85,10 +87,7 @@ Fs_server.prototype.init_data_root = function() {
 }
 
 Fs_server.prototype.start = function() {
-    if (!this.init_data_root()) {
-        console.log("fs init data root error, data root: ", this.data_root);
-        return;
-    }
+    this.init_data_root();
 
     this.work_mode = this.config.sys["work-mode"];
     //存储扩展模式时需要设置fsc

@@ -424,12 +424,6 @@ CREATE INDEX download_sid_idx ON download USING btree (sid);
 CREATE INDEX fid_hash_idx ON fid USING btree (hash);
 
 --
--- Name: fid_sid_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fid_sid_idx ON fid USING btree (sid);
-
---
 -- Name: fid_storage_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -496,16 +490,11 @@ CREATE TABLE stream (
 );
 
 ALTER TABLE ONLY stream
-    ADD CONSTRAINT stream_pkey PRIMARY KEY (streamid);
-
-ALTER TABLE stream ADD CONSTRAINT uk_tbl_unique_host unique (protocol,ip,port);
-
+          ADD CONSTRAINT stream_pkey PRIMARY KEY (streamid);
 
 CREATE INDEX stream_taxid_idx ON stream USING btree (taxid);
 
 COMMENT ON COLUMN stream.streamid IS '流id:';
-COMMENT ON COLUMN stream.description IS '流描述:';
-COMMENT ON COLUMN stream.identification IS '流通道:';
 COMMENT ON COLUMN stream.taxid IS '流绑定的时间轴tid:';
 COMMENT ON COLUMN stream.t_created IS '流创建时间:';
 COMMENT ON COLUMN stream.t_modified IS '流修改时间:';
