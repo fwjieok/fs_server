@@ -15,6 +15,7 @@ function Reader_backstream(req, res) {
     this.res = res;
     this.req_finished = false;
     this.res_finished = false;
+    this.res_header_sent = false;
 
     this.streamid = req.query.streamid;
     this.from = req.query.from;
@@ -22,19 +23,17 @@ function Reader_backstream(req, res) {
         return res.status(400).end("from not valid");
     }
 
-    console.log("--- from: ", req.query.from);
-    console.log("--- from: ", req.query.to);
+    console.log("--- from datetime: ", req.query.from);
+    console.log("--- to   datetime: ", req.query.to);
 
-    console.log("--------------------------------- ");
-
-    this.from = (new Date(this.from)).valueOf(); //转换为时间戳
+    this.from = (new Date(this.from)).valueOf(); //转换为时间戳（ms）
     this.to = this.from + 10 * 1000; //默认返回前后10秒
     if (req.query.to) {
         this.to = (new Date(req.query.to)).valueOf();
     }
 
-    console.log("--- from: ", this.from);
-    console.log("--- from: ", this.to);
+    console.log("--- from timestamp: ", this.from);
+    console.log("--- to   timestamp: ", this.to);
 
     this.self_tid = this.req.app.server.tid;
 
@@ -48,8 +47,21 @@ function Reader_backstream(req, res) {
     this.block_index = 0;
     this.block_list = [];
 
+    this.send_total_count = 0;
+    this.send_current_count = 0;
+
     this.request_fsc_block_info();
 }
+
+Reader_backstream.prototype.send_block_list_over = function(send_index) {
+    this.send_current_count += send_index;
+    this.send_total_count += send_index;
+
+    this.request_fsc_block_info();
+
+    console.log("send_current_count: ", this.send_current_count);
+}
+
 
 Reader_backstream.prototype.on_request_finished = function() {
     this.req_finished = true;
@@ -96,11 +108,11 @@ Reader_backstream.prototype.request_fsc_block_info = function() {
             return;
         }
 
+        this.block_index = 0;
         this.block_list = body;
         console.log("query data result length: ", body.length);
 
         this.send_response_header();
-
         this.process_block_data();
 
     }.bind(this));
@@ -108,9 +120,9 @@ Reader_backstream.prototype.request_fsc_block_info = function() {
 
 Reader_backstream.prototype.process_block_data = function() {
     if (this.block_index >= this.block_list.length) {
-        //if (this.block_index >= 80) {
-        this.res.end('\r\n--' + BOUNDARY + '--');
-        console.log("----- all data itme done -----");
+        //this.res.end('\r\n--' + BOUNDARY + '--');
+        console.log("----- all data done -----");
+        this.send_block_list_over(this.block_index);
         return;
     }
 
@@ -118,7 +130,11 @@ Reader_backstream.prototype.process_block_data = function() {
 
     var storage = block.storage;
     if (storage === this.self_tid) {
-        var block_path = path.join(this.req.app.server.data_root, block.bid);
+        var first = block.bid.substring(0, 3);
+        var second = block.bid.substring(3, 6);
+        var last = block.bid.substring(6);
+
+        var block_path = path.join(this.req.app.server.data_root, first, second, last);
         var buffer = fs.readFile(block_path, function(err, data) {
             if (err) {
                 console.log(err);
@@ -139,6 +155,9 @@ Reader_backstream.prototype.process_block_data = function() {
 };
 
 Reader_backstream.prototype.send_response_header = function() {
+    if (this.res_header_sent) {
+        return;
+    }
     var headers = {
         'Connection': 'Keep-Alive',
         'Transfer-Encoding': 'chunked',
@@ -149,6 +168,7 @@ Reader_backstream.prototype.send_response_header = function() {
     };
 
     this.res.writeHead(200, headers);
+    this.res_header_sent = true;
 }
 
 Reader_backstream.prototype.send_part_header = function(block) {
@@ -160,10 +180,10 @@ Reader_backstream.prototype.send_part_header = function(block) {
         "content-type:image/jpeg\r\n" +
         "timestamp: %s\r\n" +
         "frames: 1\r\n" +
-        "sample-rate: 4\r\n" +
+        "sample-rate: %d\r\n" +
         "\r\n";
 
-    partHeader = util.format(partHeader, BOUNDARY, block.t_start);
+    partHeader = util.format(partHeader, BOUNDARY, block.t_start, block.sample_rate);
 
     this.res.write(partHeader);
 }

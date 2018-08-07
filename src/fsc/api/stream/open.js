@@ -46,6 +46,8 @@ function Timeline(req, res) {
         return res.status(400).end("data not valid");
     }
 
+    console.log("---- sessionid: ", req.headers);
+
     this.taxid          = "";
     this.tid            = data.tid;
     this.channels       = data.channels;
@@ -56,8 +58,6 @@ function Timeline(req, res) {
         var channel = this.channels[i];
         this.chids.push(channel.chid);
     }
-
-    console.log("55555555555 ", this.channels);
 
     (async() => {
         var taxid = await this.open_taxid(this.tid);

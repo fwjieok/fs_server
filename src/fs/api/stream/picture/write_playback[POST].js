@@ -4,7 +4,7 @@
 var fs = require('fs');
 var util = require('util');
 var path = require('path');
-
+var mkdirp = require('mkdirp');
 var uuid = require('uuid/v1');
 var request = require('request');
 var formidable = require('formidable');
@@ -27,7 +27,7 @@ function Writer(req, res) {
     this.streamid = req.headers.streamid;
 
     this.form = new formidable.IncomingForm();
-    this.form.hash = "md5";
+    this.form.hash = false;
 
     this.form.on('end', this.on_finished.bind(this));
     this.form.on('aborted', this.done.bind(this));
@@ -50,12 +50,19 @@ Writer.prototype.on_part = function(part) {
         meta: {}
     };
 
-    var block_path = path.join(this.req.app.server.data_root, block.bid);
+    var first = block.bid.substring(0, 3);
+    var second = block.bid.substring(3, 6);
+    var last = block.bid.substring(6);
+
+    var dest_dir = path.join(this.req.app.server.data_root, first, second);
+    mkdirp.sync(dest_dir);
+    var block_path = path.join(dest_dir, last);
 
     var block_writeStream = fs.createWriteStream(block_path);
     block_writeStream.on('error', function(err) {
         console.log("------------ block_writeStream error --------------");
         console.log(err);
+        this.done(err);
     });
 
     var timestamp = part.headers.timestamp;
@@ -141,4 +148,4 @@ Writer.prototype.done = function(err) {
     this.res.end();
 
     this.res_finished = true;
-}
+};
